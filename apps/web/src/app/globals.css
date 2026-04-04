@@ -1,20 +1,263 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #060b12;
+  --foreground: #f7f2df;
+  --arena-panel: rgba(12, 18, 28, 0.86);
+  --arena-panel-strong: rgba(16, 25, 38, 0.94);
+  --arena-line: rgba(255, 255, 255, 0.11);
+  --arena-gold: #f6c667;
+  --arena-cyan: #65e7ff;
+  --arena-ice: #8ae7ff;
+  --arena-mint: #67d9a3;
+  --arena-red: #ff765d;
+  --arena-amber: #f3a63f;
+  --arena-copy: #d8d2c6;
+  --arena-copy-muted: #938c84;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-arena-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-arena-display);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background:
+    radial-gradient(circle at top, rgba(84, 231, 255, 0.12), transparent 28%),
+    radial-gradient(circle at 20% 20%, rgba(246, 198, 103, 0.14), transparent 20%),
+    linear-gradient(180deg, #08111b 0%, #070d16 44%, #05080f 100%);
 }
 
 body {
   min-height: 100vh;
-  background: var(--background);
+  background:
+    radial-gradient(circle at top, rgba(84, 231, 255, 0.12), transparent 25%),
+    radial-gradient(circle at bottom right, rgba(246, 198, 103, 0.1), transparent 20%),
+    linear-gradient(180deg, #08111b 0%, #070d16 44%, #05080f 100%);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-arena-sans), sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 100% 52px, 52px 100%;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 90%);
+}
+
+::selection {
+  background: rgba(101, 231, 255, 0.28);
+  color: #fff8e8;
+}
+
+@keyframes arena-live-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes arena-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes arena-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer components {
+  .arena-shell {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arena-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--arena-line);
+    border-radius: 2rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 28%),
+      linear-gradient(180deg, rgba(10, 18, 28, 0.92), rgba(8, 13, 21, 0.9));
+    box-shadow:
+      0 30px 90px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .arena-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at top, rgba(101, 231, 255, 0.12), transparent 34%),
+      linear-gradient(90deg, rgba(246, 198, 103, 0.18), transparent 18%, transparent 82%, rgba(101, 231, 255, 0.12));
+    opacity: 0.85;
+  }
+
+  .arena-surface {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .arena-kicker {
+    font-size: 0.72rem;
+    line-height: 1;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+  }
+
+  .arena-display {
+    font-family: var(--font-arena-display), sans-serif;
+    letter-spacing: 0.06em;
+    line-height: 0.9;
+  }
+
+  .arena-input,
+  .arena-select {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.2rem;
+    background: rgba(3, 8, 14, 0.7);
+    padding: 0.9rem 1rem;
+    color: #fff8ea;
+    outline: none;
+    transition:
+      border-color 160ms ease,
+      transform 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .arena-input:focus,
+  .arena-select:focus {
+    border-color: rgba(101, 231, 255, 0.6);
+    background: rgba(6, 12, 18, 0.95);
+  }
+
+  .arena-input::placeholder {
+    color: rgba(216, 210, 198, 0.45);
+  }
+
+  .arena-button-primary,
+  .arena-button-secondary,
+  .arena-button-warning {
+    border-radius: 999px;
+    padding: 0.88rem 1.2rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease,
+      opacity 160ms ease;
+  }
+
+  .arena-button-primary {
+    border: 1px solid rgba(101, 231, 255, 0.28);
+    background:
+      linear-gradient(180deg, rgba(101, 231, 255, 0.18), rgba(101, 231, 255, 0.08));
+    color: #f8feff;
+  }
+
+  .arena-button-secondary {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #f7f2df;
+  }
+
+  .arena-button-warning {
+    border: 1px solid rgba(243, 166, 63, 0.28);
+    background:
+      linear-gradient(180deg, rgba(243, 166, 63, 0.18), rgba(243, 166, 63, 0.08));
+    color: #fff1d5;
+  }
+
+  .arena-button-primary:hover,
+  .arena-button-secondary:hover,
+  .arena-button-warning:hover {
+    transform: translateY(-1px);
+  }
+
+  .arena-button-primary:disabled,
+  .arena-button-secondary:disabled,
+  .arena-button-warning:disabled {
+    opacity: 0.48;
+    transform: none;
+  }
+
+  .arena-live-dot {
+    animation: arena-live-pulse 1.6s ease-in-out infinite;
+  }
+
+  .arena-sweep {
+    animation: arena-sweep 4.6s linear infinite;
+  }
+
+  .arena-rise {
+    animation: arena-rise 420ms ease-out both;
+  }
+
+  .arena-transcript-bubble {
+    position: relative;
+    border-radius: 1.5rem;
+    padding: 1rem 1rem 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  .arena-transcript-bubble--p1 {
+    background: linear-gradient(180deg, rgba(101, 231, 255, 0.12), rgba(101, 231, 255, 0.05));
+  }
+
+  .arena-transcript-bubble--p2 {
+    background: linear-gradient(180deg, rgba(255, 118, 93, 0.16), rgba(255, 118, 93, 0.06));
+  }
+
+  .arena-transcript-bubble--system {
+    background: linear-gradient(180deg, rgba(246, 198, 103, 0.16), rgba(246, 198, 103, 0.06));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

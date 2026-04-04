@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { badRequest } from "@/lib/http/respond";
-import { createMatch, listOpenMatches } from "@/lib/services/matches";
+import { createMatch, listOpenMatches, listRecentMatches } from "@/lib/services/matches";
 
 const createMatchSchema = z.object({
   walletAddress: z.string().min(1),
@@ -12,7 +12,8 @@ const createMatchSchema = z.object({
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    matches: listOpenMatches()
+    matches: listOpenMatches(),
+    recentMatches: await listRecentMatches(),
   });
 }
 
