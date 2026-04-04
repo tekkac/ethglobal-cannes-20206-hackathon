@@ -1,19 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060b12;
-  --foreground: #f7f2df;
-  --arena-panel: rgba(12, 18, 28, 0.86);
-  --arena-panel-strong: rgba(16, 25, 38, 0.94);
-  --arena-line: rgba(255, 255, 255, 0.11);
-  --arena-gold: #f6c667;
-  --arena-cyan: #65e7ff;
-  --arena-ice: #8ae7ff;
-  --arena-mint: #67d9a3;
-  --arena-red: #ff765d;
-  --arena-amber: #f3a63f;
-  --arena-copy: #d8d2c6;
-  --arena-copy-muted: #938c84;
+  --background: #f3d6a7;
+  --foreground: #fff7e7;
+  --arena-night: #17233f;
+  --arena-night-2: #223259;
+  --arena-panel: #263964;
+  --arena-panel-strong: #1d2d52;
+  --arena-line: rgba(12, 25, 55, 0.18);
+  --arena-cream: #fff1cc;
+  --arena-gold: #ffc658;
+  --arena-cyan: #56c8ff;
+  --arena-ice: #9ce3ff;
+  --arena-mint: #6de0b1;
+  --arena-red: #ff6b5e;
+  --arena-amber: #ff9d44;
+  --arena-copy: #eef4ff;
+  --arena-copy-muted: #afc1e8;
+  --arena-ink: #10203f;
+  --arena-shadow: 0 18px 0 rgba(18, 30, 58, 0.28), 0 28px 50px rgba(16, 26, 46, 0.22);
 }
 
 @theme inline {
@@ -30,18 +35,19 @@
 
 html {
   background:
-    radial-gradient(circle at top, rgba(84, 231, 255, 0.12), transparent 28%),
-    radial-gradient(circle at 20% 20%, rgba(246, 198, 103, 0.14), transparent 20%),
-    linear-gradient(180deg, #08111b 0%, #070d16 44%, #05080f 100%);
+    radial-gradient(circle at 20% 0%, rgba(255, 243, 198, 0.65), transparent 26%),
+    radial-gradient(circle at 100% 10%, rgba(86, 200, 255, 0.22), transparent 24%),
+    linear-gradient(180deg, #f5d8a7 0%, #f2c97a 40%, #d58e52 100%);
 }
 
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(84, 231, 255, 0.12), transparent 25%),
-    radial-gradient(circle at bottom right, rgba(246, 198, 103, 0.1), transparent 20%),
-    linear-gradient(180deg, #08111b 0%, #070d16 44%, #05080f 100%);
-  color: var(--foreground);
+    radial-gradient(circle at 15% 0%, rgba(255, 246, 209, 0.72), transparent 25%),
+    radial-gradient(circle at 85% 8%, rgba(86, 200, 255, 0.24), transparent 20%),
+    radial-gradient(circle at 50% 100%, rgba(138, 76, 34, 0.28), transparent 36%),
+    linear-gradient(180deg, #f8dfa6 0%, #efc06a 36%, #d2864f 100%);
+  color: var(--arena-ink);
   font-family: var(--font-arena-sans), sans-serif;
 }
 
@@ -50,11 +56,22 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 100% 52px, 52px 100%;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 90%);
+  background:
+    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.5), transparent 35%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 22%, transparent 78%, rgba(101, 68, 30, 0.14));
+  opacity: 0.7;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: auto 0 0;
+  height: 28vh;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 100%, rgba(94, 44, 18, 0.34), transparent 22%),
+    radial-gradient(circle at 50% 120%, rgba(94, 44, 18, 0.28), transparent 34%),
+    radial-gradient(circle at 90% 100%, rgba(94, 44, 18, 0.34), transparent 24%);
 }
 
 ::selection {
@@ -103,17 +120,26 @@ body::before {
     overflow: hidden;
   }
 
+  .arena-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 20% 12%, rgba(255, 245, 201, 0.3), transparent 18%),
+      radial-gradient(circle at 80% 8%, rgba(86, 200, 255, 0.12), transparent 22%);
+    opacity: 0.9;
+  }
+
   .arena-panel {
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--arena-line);
-    border-radius: 2rem;
+    border: 2px solid rgba(15, 31, 63, 0.16);
+    border-radius: 2.25rem;
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 28%),
-      linear-gradient(180deg, rgba(10, 18, 28, 0.92), rgba(8, 13, 21, 0.9));
-    box-shadow:
-      0 30px 90px rgba(0, 0, 0, 0.34),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      linear-gradient(180deg, rgba(255, 247, 221, 0.16), rgba(255, 247, 221, 0) 22%),
+      linear-gradient(180deg, var(--arena-panel) 0%, var(--arena-panel-strong) 100%);
+    box-shadow: var(--arena-shadow), inset 0 3px 0 rgba(255, 245, 210, 0.32);
   }
 
   .arena-panel::before {
@@ -122,39 +148,55 @@ body::before {
     inset: 0;
     pointer-events: none;
     background:
-      radial-gradient(circle at top, rgba(101, 231, 255, 0.12), transparent 34%),
-      linear-gradient(90deg, rgba(246, 198, 103, 0.18), transparent 18%, transparent 82%, rgba(101, 231, 255, 0.12));
+      linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 18%),
+      linear-gradient(90deg, rgba(255, 198, 88, 0.12), transparent 20%, transparent 80%, rgba(86, 200, 255, 0.12));
+    opacity: 0.92;
+  }
+
+  .arena-panel::after {
+    content: "";
+    position: absolute;
+    inset: auto 1rem 1rem;
+    height: 0.65rem;
+    border-radius: 999px;
+    background: rgba(13, 24, 47, 0.28);
+    filter: blur(12px);
     opacity: 0.85;
   }
 
   .arena-surface {
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 1.5rem;
-    background: rgba(255, 255, 255, 0.04);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 241, 204, 0.12);
+    border-radius: 1.6rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0) 30%),
+      rgba(255, 255, 255, 0.055);
+    box-shadow: inset 0 2px 0 rgba(255, 247, 221, 0.12), 0 10px 22px rgba(10, 19, 38, 0.12);
   }
 
   .arena-kicker {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     line-height: 1;
-    letter-spacing: 0.4em;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
+    font-weight: 800;
   }
 
   .arena-display {
     font-family: var(--font-arena-display), sans-serif;
-    letter-spacing: 0.06em;
-    line-height: 0.9;
+    letter-spacing: 0.04em;
+    line-height: 0.86;
+    text-shadow: 0 4px 0 rgba(13, 24, 47, 0.2);
   }
 
   .arena-input,
   .arena-select {
     width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1.2rem;
-    background: rgba(3, 8, 14, 0.7);
-    padding: 0.9rem 1rem;
-    color: #fff8ea;
+    border: 2px solid rgba(17, 35, 71, 0.22);
+    border-radius: 1.35rem;
+    background: rgba(255, 247, 227, 0.96);
+    padding: 0.95rem 1rem;
+    color: #19315c;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.74), 0 6px 0 rgba(22, 38, 72, 0.12);
     outline: none;
     transition:
       border-color 160ms ease,
@@ -164,52 +206,59 @@ body::before {
 
   .arena-input:focus,
   .arena-select:focus {
-    border-color: rgba(101, 231, 255, 0.6);
-    background: rgba(6, 12, 18, 0.95);
+    border-color: rgba(86, 200, 255, 0.76);
+    background: #fff8ea;
+    transform: translateY(-1px);
   }
 
   .arena-input::placeholder {
-    color: rgba(216, 210, 198, 0.45);
+    color: rgba(25, 49, 92, 0.42);
   }
 
   .arena-button-primary,
   .arena-button-secondary,
   .arena-button-warning {
-    border-radius: 999px;
-    padding: 0.88rem 1.2rem;
-    font-size: 0.88rem;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.2rem;
+    padding: 0.95rem 1.25rem;
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
     transition:
       transform 160ms ease,
       border-color 160ms ease,
       background-color 160ms ease,
-      opacity 160ms ease;
+      opacity 160ms ease,
+      box-shadow 160ms ease;
   }
 
   .arena-button-primary {
-    border: 1px solid rgba(101, 231, 255, 0.28);
-    background:
-      linear-gradient(180deg, rgba(101, 231, 255, 0.18), rgba(101, 231, 255, 0.08));
-    color: #f8feff;
+    border: 2px solid rgba(15, 61, 117, 0.18);
+    background: linear-gradient(180deg, #6fd7ff 0%, #2eb7ff 100%);
+    color: #0f2f5e;
+    box-shadow: 0 7px 0 #197ebd, 0 16px 28px rgba(25, 126, 189, 0.26);
   }
 
   .arena-button-secondary {
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.05);
-    color: #f7f2df;
+    border: 2px solid rgba(16, 34, 68, 0.12);
+    background: linear-gradient(180deg, #fff2d4 0%, #ffd68f 100%);
+    color: #72470d;
+    box-shadow: 0 7px 0 #dba857, 0 16px 28px rgba(138, 92, 25, 0.22);
   }
 
   .arena-button-warning {
-    border: 1px solid rgba(243, 166, 63, 0.28);
-    background:
-      linear-gradient(180deg, rgba(243, 166, 63, 0.18), rgba(243, 166, 63, 0.08));
-    color: #fff1d5;
+    border: 2px solid rgba(110, 36, 20, 0.14);
+    background: linear-gradient(180deg, #ff9f73 0%, #ff6c56 100%);
+    color: #fff8ec;
+    box-shadow: 0 7px 0 #cc543d, 0 16px 28px rgba(204, 84, 61, 0.24);
   }
 
   .arena-button-primary:hover,
   .arena-button-secondary:hover,
   .arena-button-warning:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 
   .arena-button-primary:disabled,
@@ -217,6 +266,7 @@ body::before {
   .arena-button-warning:disabled {
     opacity: 0.48;
     transform: none;
+    box-shadow: none;
   }
 
   .arena-live-dot {
@@ -233,21 +283,22 @@ body::before {
 
   .arena-transcript-bubble {
     position: relative;
-    border-radius: 1.5rem;
-    padding: 1rem 1rem 0.95rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 1.7rem;
+    padding: 1rem 1rem 1rem;
+    border: 2px solid rgba(255, 241, 204, 0.12);
+    box-shadow: inset 0 2px 0 rgba(255, 247, 221, 0.14), 0 10px 18px rgba(10, 19, 38, 0.12);
   }
 
   .arena-transcript-bubble--p1 {
-    background: linear-gradient(180deg, rgba(101, 231, 255, 0.12), rgba(101, 231, 255, 0.05));
+    background: linear-gradient(180deg, rgba(86, 200, 255, 0.28), rgba(86, 200, 255, 0.08));
   }
 
   .arena-transcript-bubble--p2 {
-    background: linear-gradient(180deg, rgba(255, 118, 93, 0.16), rgba(255, 118, 93, 0.06));
+    background: linear-gradient(180deg, rgba(255, 107, 94, 0.24), rgba(255, 157, 68, 0.1));
   }
 
   .arena-transcript-bubble--system {
-    background: linear-gradient(180deg, rgba(246, 198, 103, 0.16), rgba(246, 198, 103, 0.06));
+    background: linear-gradient(180deg, rgba(255, 198, 88, 0.24), rgba(255, 198, 88, 0.08));
   }
 }
 

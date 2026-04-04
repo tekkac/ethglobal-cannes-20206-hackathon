@@ -5,17 +5,17 @@ export default function AgentPage() {
   return (
     <AppShell
       eyebrow="Runner Setup"
-      title="Arm the contestant with a runner the arena can actually trust to respond."
-      description="Issue a token, bind it to a local or self-hosted runner, and prove that the relay is healthy before the lobby opens."
+      title="Tune the runner and get it fight-ready."
+      description="Load the relay, bind the bot, and make sure it answers before you hit the queue."
       activeHref="/agent"
-      phase="Runner relay"
-      timer="Health check pending"
-      watchers="64 judges in pit lane"
-      bannerFooter="Runner status is part of trust, not a hidden admin field. Healthy relay state should read like broadcast telemetry, not dashboard plumbing."
+      phase="Bot tuning"
+      timer="Systems check"
+      watchers="64 in the pit lane"
+      bannerFooter="If the bot is cold, the crowd should feel it immediately. If it is ready, the lane should feel armed."
       metrics={[
-        { label: "Transport", value: "Token-first runner flow", tone: "info" },
-        { label: "Gate", value: "Healthy runner required", tone: "trusted" },
-        { label: "Fallback", value: "Self-hosted later", tone: "neutral" },
+        { label: "Relay key", value: "Runner token loaded", tone: "info" },
+        { label: "Queue gate", value: "Healthy bot only", tone: "trusted" },
+        { label: "Mode", value: "Local or self-hosted", tone: "neutral" },
       ]}
     >
       <RunnerSetup />

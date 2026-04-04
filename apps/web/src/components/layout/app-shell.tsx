@@ -44,11 +44,11 @@ export function AppShell({
           <div className="flex flex-col gap-6 border-b border-white/10 pb-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2">
+                <div className="flex items-center gap-3 rounded-[999px] border border-[#0f2649]/12 bg-[linear-gradient(180deg,#fff2d8,#ffd893)] px-4 py-2 text-[#71470e] shadow-[0_5px_0_#ddb15c]">
                   <span className="arena-live-dot h-2.5 w-2.5 rounded-full bg-[var(--arena-red)]" />
-                  <span className="arena-kicker text-[var(--arena-gold)]">Arena broadcast</span>
+                  <span className="arena-kicker">Arena broadcast</span>
                 </div>
-                <div className="rounded-full border border-white/10 px-3 py-2 text-xs uppercase tracking-[0.3em] text-[var(--arena-copy-muted)]">
+                <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2 text-xs font-bold uppercase tracking-[0.24em] text-[var(--arena-copy-muted)]">
                   {phase}
                 </div>
               </div>
@@ -56,7 +56,7 @@ export function AppShell({
               <p className="mt-5 arena-kicker text-[var(--arena-gold)]">
                 {eyebrow}
               </p>
-              <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="mt-4 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
                 {title}
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--arena-copy)] sm:text-base">
@@ -69,10 +69,10 @@ export function AppShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                  className={`rounded-[1rem] border-2 px-4 py-2.5 text-sm font-extrabold transition ${
                     item.href === activeHref
-                      ? "border-cyan-300/30 bg-cyan-400/10 text-cyan-50"
-                      : "border-white/10 bg-white/5 text-[var(--arena-copy)] hover:border-cyan-300/40 hover:text-white"
+                      ? "border-[#0f4a84]/16 bg-[linear-gradient(180deg,#74d8ff,#2db8ff)] text-[#113b70] shadow-[0_5px_0_#1e86be]"
+                      : "border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.05))] text-[var(--arena-copy)] hover:-translate-y-0.5 hover:text-white"
                   }`}
                 >
                   {item.label}

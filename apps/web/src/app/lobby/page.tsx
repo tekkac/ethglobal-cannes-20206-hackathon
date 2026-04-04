@@ -5,17 +5,17 @@ export default function LobbyPage() {
   return (
     <AppShell
       eyebrow="Lobby"
-      title="Build the waiting room like a televised face-off, then randomize P1 and P2 right before go time."
-      description="For MVP, the duel starts only when both players have chosen a trust mode, connected a healthy runner, and funded the stake. The lobby should feel watchable before the match exists."
+      title="Load into the queue, watch the room, and wait for the seat draw."
+      description="Pick your stake, open a duel, or crash into one already heating up."
       activeHref="/lobby"
-      phase="Lobby lock"
-      timer="P1/P2 reveal pending"
+      phase="Queue room"
+      timer="Seat draw pending"
       watchers="231 in the crowd"
-      bannerFooter="Open matches stay readable on mobile, with visible trust styling and a transcript-first cadence that carries straight into the live duel."
+      bannerFooter="The queue should already feel hot before the first line is spoken."
       metrics={[
-        { label: "Readiness", value: "Trust + runner + stake", tone: "info" },
-        { label: "Seat assignment", value: "Randomized pre-match", tone: "trusted" },
-        { label: "Spectator read", value: "Watchable from day one", tone: "neutral" },
+        { label: "Queue check", value: "Ready to drop", tone: "info" },
+        { label: "Seat draw", value: "Random every duel", tone: "trusted" },
+        { label: "Room heat", value: "Crowd already watching", tone: "neutral" },
       ]}
     >
       <LobbyReadiness />

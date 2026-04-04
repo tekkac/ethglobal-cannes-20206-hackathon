@@ -197,14 +197,14 @@ export function LobbyReadiness() {
       <div className="grid gap-6">
         <Panel
           title="Readiness Gate"
-          description="This is still the real lobby pre-flight check, but it now reads like a televised queue desk instead of a backend checklist."
+          description="If the lane is loaded, the room opens. If not, it waits outside."
         >
           <div className="grid gap-4">
-            <div className="arena-surface border-cyan-400/20 bg-cyan-400/10 px-4 py-4 text-sm leading-6 text-cyan-50">
+            <div className="rounded-[1.6rem] border-2 border-[#123f75]/14 bg-[linear-gradient(180deg,#93e5ff,#57c8ff)] px-4 py-4 text-sm font-semibold leading-6 text-[#113b70] shadow-[0_8px_0_#1d92ca,0_16px_24px_rgba(29,146,202,0.18)]">
               {message}
             </div>
 
-            <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(5,8,14,0.78))] p-5">
+            <div className="rounded-[1.95rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04))] p-5 shadow-[0_14px_22px_rgba(10,19,38,0.14)]">
               {player ? (
                 <div className="grid gap-3 text-sm text-[var(--arena-copy)]">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -217,15 +217,16 @@ export function LobbyReadiness() {
                       />
                       <div>
                         <p className="arena-kicker text-[var(--arena-copy-muted)]">Contestant</p>
-                        <p className="mt-2 text-2xl font-semibold text-white">{playerName}</p>
+                        <p className="mt-2 text-2xl font-black text-white">{playerName}</p>
                       </div>
                     </div>
                     <StatusBadge tone={player.trustStatus}>
-                      {player.trustStatus === "trusted" ? "Trusted entrant" : "Might be a sybil"}
+                      {player.trustStatus === "trusted" ? "Prime contender" : "Wildcard contender"}
                     </StatusBadge>
                   </div>
 
-                  <div className="arena-surface flex items-center justify-between gap-3 px-4 py-3">
+                  <div className="rounded-[1.4rem] border-2 border-white/10 bg-white/[0.07] px-4 py-3 shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
+                    <div className="flex items-center justify-between gap-3">
                     <span className="text-[var(--arena-copy-muted)]">Runner</span>
                     {runner ? (
                       <StatusBadge tone={runner.status === "healthy" ? "trusted" : "info"}>
@@ -234,6 +235,7 @@ export function LobbyReadiness() {
                     ) : (
                       <span className="font-medium text-white">No runner</span>
                     )}
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -244,18 +246,18 @@ export function LobbyReadiness() {
             </div>
 
             <div
-              className={`arena-surface px-4 py-4 text-sm leading-6 ${
+              className={`rounded-[1.6rem] border-2 px-4 py-4 text-sm font-semibold leading-6 shadow-[0_10px_18px_rgba(10,19,38,0.12)] ${
                 ready
-                  ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-50"
-                  : "border-amber-400/20 bg-amber-400/10 text-amber-50"
+                  ? "border-[#0f3d72]/14 bg-[linear-gradient(180deg,#86ebc4,#5ed6a7)] text-[#0f4b38]"
+                  : "border-[#6f2414]/14 bg-[linear-gradient(180deg,#ffb47b,#ff855b)] text-[#742e18]"
               }`}
             >
               {ready
-                ? "Ready for lobby creation. P1 and P2 are assigned at random right before the match starts."
-                : "Not ready yet. A saved player profile and healthy runner are required before entering the lobby."}
+                ? "You are cleared. Open a duel or jump into one."
+                : "Lane is not ready yet. Lock the entrance and wake the bot."}
             </div>
 
-            <div className="grid gap-3 rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(6,10,16,0.82))] p-5">
+            <div className="grid gap-3 rounded-[1.95rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04))] p-5 shadow-[0_14px_22px_rgba(10,19,38,0.14)]">
               <label className="grid gap-2">
                 <span className="text-sm font-medium text-white">Stake amount</span>
                 <input
@@ -325,10 +327,10 @@ export function LobbyReadiness() {
       <div className="grid gap-6">
         <Panel
           title="Open Duels"
-          description="Create or join a duel here. P1 and P2 are assigned at random only after the lobby is full, so the waiting room needs to feel watchable first."
+          description="Fresh rooms, hot rooms, and one open seat waiting for a challenger."
         >
-          <div className="grid gap-4">
-            <div className="rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(5,8,14,0.76))] p-4">
+            <div className="grid gap-4">
+            <div className="rounded-[1.85rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04))] p-4 shadow-[0_14px_22px_rgba(10,19,38,0.14)]">
               <PhaseList />
             </div>
 
@@ -341,12 +343,13 @@ export function LobbyReadiness() {
                   return (
                     <div
                       key={match.id}
-                      className={`rounded-[1.75rem] border p-5 ${
+                      className={`relative overflow-hidden rounded-[2rem] border-2 p-5 shadow-[0_18px_26px_rgba(10,19,38,0.16)] ${
                         entrantTrusted
-                          ? "border-emerald-400/20 bg-[linear-gradient(180deg,rgba(103,217,163,0.12),rgba(5,8,14,0.76))]"
-                          : "border-amber-400/20 bg-[linear-gradient(180deg,rgba(243,166,63,0.16),rgba(5,8,14,0.76))]"
+                          ? "border-[#0f3d72]/14 bg-[linear-gradient(180deg,rgba(134,235,196,0.32),rgba(76,171,135,0.12))]"
+                          : "border-[#6f2414]/14 bg-[linear-gradient(180deg,rgba(255,180,123,0.32),rgba(255,107,94,0.12))]"
                       }`}
                     >
+                      <div className="absolute inset-x-5 top-0 h-1.5 rounded-b-full bg-white/25" />
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="flex items-start gap-4">
                           {match.playerA ? (
@@ -358,20 +361,20 @@ export function LobbyReadiness() {
                           ) : null}
                           <div>
                             <p className="arena-kicker text-[var(--arena-copy-muted)]">Open seat</p>
-                            <p className="mt-2 text-lg font-semibold text-white">{entrantName}</p>
+                            <p className="mt-2 text-xl font-black text-white">{entrantName}</p>
                             <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
                               Stake: {match.stakeAmount} USDC
                             </p>
                           </div>
                         </div>
                         <StatusBadge tone={entrantTrusted ? "trusted" : "untrusted"}>
-                          {entrantTrusted ? "Trusted" : "Might be a sybil"}
+                          {entrantTrusted ? "Prime lane" : "Wildcard lane"}
                         </StatusBadge>
                       </div>
 
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap gap-2">
-                          <div className="rounded-full border border-white/10 px-3 py-2 text-xs uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
+                          <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2 text-xs uppercase tracking-[0.18em] text-[var(--arena-copy-muted)]">
                             {match.status}
                           </div>
                           <Link href={`/match/${match.id}`} className="arena-button-secondary">
@@ -401,7 +404,7 @@ export function LobbyReadiness() {
 
         <Panel
           title="Recent Results"
-          description="The arena now remembers who fought, who won, and whether payouts were claimed. That gives the broadcast some memory instead of resetting after every duel."
+          description="The wall of recent damage."
         >
           <div className="grid gap-3">
             {recentMatches.length > 0 ? (
@@ -416,11 +419,12 @@ export function LobbyReadiness() {
                       : "Cooperative finish or deadlock";
 
                 return (
-                  <div key={match.id} className="arena-surface px-4 py-4">
+                  <div key={match.id} className="relative overflow-hidden rounded-[1.9rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-4 py-4 shadow-[0_14px_22px_rgba(10,19,38,0.14)]">
+                    <div className="absolute inset-x-5 top-0 h-1.5 rounded-b-full bg-white/22" />
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div>
                         <p className="arena-kicker text-[var(--arena-copy-muted)]">Resolved duel</p>
-                        <p className="mt-2 text-lg font-semibold text-white">{winningLabel}</p>
+                        <p className="mt-2 text-xl font-black text-white">{winningLabel}</p>
                         <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
                           {match.resolutionSummary ?? "Result is recorded and ready for replay."}
                         </p>
@@ -445,7 +449,7 @@ export function LobbyReadiness() {
                           claimed: match.settlement.playerTwoClaimed,
                         },
                       ].map(({ seat, player, payout, claimed }) => (
-                        <div key={seat} className="rounded-[1.35rem] border border-white/10 bg-white/[0.04] px-4 py-3">
+                        <div key={seat} className="rounded-[1.55rem] border-2 border-white/10 bg-white/[0.07] px-4 py-3 shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
                           <div className="flex items-center gap-3">
                             {player ? (
                               <IdentityAvatar
@@ -469,7 +473,7 @@ export function LobbyReadiness() {
                       ))}
                     </div>
 
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs uppercase tracking-[0.24em] text-[var(--arena-copy-muted)]">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs uppercase tracking-[0.18em] text-[var(--arena-copy-muted)]">
                       <span>{match.phase.replaceAll("_", " ")}</span>
                       <span>{formatResolutionTime(match.resolvedAt)}</span>
                     </div>
@@ -485,28 +489,28 @@ export function LobbyReadiness() {
         </Panel>
 
         <TranscriptPreview
-          eyebrow="Queue commentary"
-          title="The lobby already behaves like a pre-match broadcast"
-          description="Readiness, random seat assignment, and open-duel cards are all framed as part of the spectator experience. This keeps the lobby useful even before the match route is fully polished."
+          eyebrow="Queue noise"
+          title="The room should already feel alive before the first line lands"
+          description="Open seats, hot lanes, and a crowd waiting for the draw."
           turns={[
             {
               marker: "Queue desk",
               speaker: "Arena desk",
               text: ready
-                ? "Contestant cleared. The desk can accept a stake and create a duel."
-                : "Contestant blocked. The crowd can see exactly which gate is still missing.",
+                ? "Lane is clear. Open the room."
+                : "Lane is blocked. Fix the setup first.",
               tone: "system",
             },
             {
-              marker: "Seat reveal",
+              marker: "Seat draw",
               speaker: "Player 2",
-              text: "P1 and P2 stay hidden until the lobby closes, so the waiting room needs strong suspense on its own.",
+              text: "Nobody knows who fires first until the draw lands.",
               tone: "p2",
             },
             {
               marker: "Match rule",
               speaker: "Arena desk",
-              text: "Exactly six public messages, then commit and reveal. The timeline stays visible here so the next screen feels like a continuation, not a reset.",
+              text: "Six public shots. Then the final move opens the room.",
               tone: "system",
             },
           ]}

@@ -210,7 +210,12 @@ describe("lobby flow services", () => {
 
     const playerOnePayout = Number.parseFloat(resolved?.settlement.playerOnePayout ?? "0");
     const playerTwoPayout = Number.parseFloat(resolved?.settlement.playerTwoPayout ?? "0");
-    const claimant = playerOnePayout > 0 ? "0x999" : playerTwoPayout > 0 ? "0xaaa9" : null;
+    const claimant =
+      playerOnePayout > 0
+        ? resolved?.playerOne?.walletAddress ?? null
+        : playerTwoPayout > 0
+          ? resolved?.playerTwo?.walletAddress ?? null
+          : null;
 
     if (!claimant) {
       expect(resolved?.settlement.status).toBe("settled");

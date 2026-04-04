@@ -138,10 +138,10 @@ export function RunnerSetup() {
       <div className="grid gap-6">
         <Panel
           title="Runner Relay"
-          description="The MVP flow stays the same, but the page now presents the runner as live arena equipment instead of admin infrastructure."
+          description="Wake the bot up, wire the relay, and make sure it answers when the lights hit."
         >
           <div className="grid gap-4">
-            <div className="arena-surface border-cyan-400/20 bg-cyan-400/10 px-4 py-4 text-sm leading-6 text-cyan-50">
+            <div className="rounded-[1.6rem] border-2 border-[#123f75]/14 bg-[linear-gradient(180deg,#93e5ff,#57c8ff)] px-4 py-4 text-sm font-semibold leading-6 text-[#113b70] shadow-[0_8px_0_#1d92ca,0_16px_24px_rgba(29,146,202,0.18)]">
               {message}
             </div>
 
@@ -203,7 +203,7 @@ export function RunnerSetup() {
               <input
                 value={endpointUrl}
                 onChange={(event) => setEndpointUrl(event.target.value)}
-                placeholder="Optional in MVP"
+                placeholder="Relay endpoint"
                 className="arena-input"
               />
             </label>
@@ -232,17 +232,17 @@ export function RunnerSetup() {
         <div className="grid gap-3 md:grid-cols-3">
           <BroadcastMetric
             label="Token status"
-            value={runnerToken ? "Issued or loaded" : "Not issued"}
+            value={runnerToken ? "Loaded" : "Missing"}
             tone={runnerToken ? "info" : "neutral"}
           />
           <BroadcastMetric
             label="Relay mode"
-            value={mode === "local" ? "Local runner" : "Self-hosted runner"}
+            value={mode === "local" ? "Local bot" : "Remote bot"}
             tone="neutral"
           />
           <BroadcastMetric
             label="Health gate"
-            value={runner?.status === "healthy" ? "Lobby unlocked" : "Lobby blocked"}
+            value={runner?.status === "healthy" ? "Fight-ready" : "Still cold"}
             tone={runner?.status === "healthy" ? "trusted" : "untrusted"}
           />
         </div>
@@ -253,9 +253,9 @@ export function RunnerSetup() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="arena-kicker text-[var(--arena-gold)]">Relay telemetry</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Runner state</h2>
+              <h2 className="mt-3 text-2xl font-black text-white">Runner state</h2>
               <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
-                This is the server-side runner record that decides whether a contestant can reach the lobby.
+                If this bot is not alive, the lane is not entering the fight.
               </p>
             </div>
             {runner ? (
@@ -268,44 +268,50 @@ export function RunnerSetup() {
           <div className="mt-5 grid gap-3">
             {runner ? (
               <>
-                <div className="arena-surface flex items-center justify-between gap-3 px-4 py-3 text-sm text-[var(--arena-copy)]">
+                <div className="rounded-[1.5rem] border-2 border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
+                  <div className="flex items-center justify-between gap-3">
                   <span className="text-[var(--arena-copy-muted)]">Label</span>
                   <span className="font-medium text-white">{runner.runnerLabel}</span>
+                  </div>
                 </div>
-                <div className="arena-surface flex items-center justify-between gap-3 px-4 py-3 text-sm text-[var(--arena-copy)]">
+                <div className="rounded-[1.5rem] border-2 border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
+                  <div className="flex items-center justify-between gap-3">
                   <span className="text-[var(--arena-copy-muted)]">Mode</span>
                   <span className="font-medium text-white">{runner.mode}</span>
+                  </div>
                 </div>
-                <div className="arena-surface flex items-center justify-between gap-3 px-4 py-3 text-sm text-[var(--arena-copy)]">
+                <div className="rounded-[1.5rem] border-2 border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
+                  <div className="flex items-center justify-between gap-3">
                   <span className="text-[var(--arena-copy-muted)]">Last seen</span>
                   <span className="font-medium text-white">{runner.lastSeenAt ?? "Pending first ping"}</span>
+                  </div>
                 </div>
-                <div className="arena-surface grid gap-2 px-4 py-3 text-sm text-[var(--arena-copy)]">
+                <div className="rounded-[1.5rem] border-2 border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
                   <span className="text-[var(--arena-copy-muted)]">Token</span>
-                  <code className="overflow-x-auto rounded-xl bg-black/30 px-3 py-3 text-xs text-cyan-50">
+                  <code className="overflow-x-auto rounded-[1rem] border border-white/10 bg-[rgba(17,35,71,0.48)] px-3 py-3 text-xs text-cyan-50">
                     {runner.runnerToken}
                   </code>
                 </div>
               </>
             ) : (
               <div className="arena-surface px-4 py-4 text-sm leading-6 text-[var(--arena-copy-muted)]">
-                No runner registered yet. Issue a token first so the contestant has a relay identity.
+                No bot online yet. Cut a token and wake it up.
               </div>
             )}
           </div>
         </section>
 
         <TranscriptPreview
-          eyebrow="Relay commentary"
-          title="Runner setup reads like a pre-match systems check"
-          description="This page keeps the live-arena voice. Token issuance, registration, and health checks are narrated as broadcast events so the transition into the lobby feels natural."
+          eyebrow="Systems check"
+          title="The bot bay should feel dangerous, not technical"
+          description="This is where your lane gets armed."
           turns={[
             {
               marker: "Token issue",
               speaker: "Arena desk",
               text: runnerToken
-                ? "Relay key generated. The contestant can now bind a runner to the arena."
-                : "No relay key yet. Generate one before any runner can announce itself.",
+                ? "Key cut. The bot can bind to the lane."
+                : "No key. No bot. No fight.",
               tone: "system",
             },
             {
@@ -313,14 +319,14 @@ export function RunnerSetup() {
               speaker: "Player 1",
               text:
                 runner?.status === "healthy"
-                  ? `${runner.runnerLabel} is healthy and ready to answer when the duel goes live.`
-                  : "The arena is still waiting for a healthy runner response from the contestant lane.",
+                  ? `${runner.runnerLabel} is hot and ready to talk back.`
+                  : "The lane is still waiting for a live response.",
               tone: "p1",
             },
             {
               marker: "Queue gate",
               speaker: "Arena desk",
-              text: "A player cannot enter the lobby until this relay is healthy. The restriction is product logic, not just decorative copy.",
+              text: "Cold bots stay out of the queue.",
               tone: "system",
             },
           ]}

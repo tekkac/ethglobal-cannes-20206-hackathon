@@ -38,7 +38,7 @@ describe("UI route smoke tests", () => {
 
     expect(html).toContain("Identity Desk");
     expect(html).toContain("Current player state");
-    expect(html).toContain("Verify with World ID 4.0");
+    expect(html).toContain("Enter the clean lane");
   });
 
   it("renders the agent route", () => {

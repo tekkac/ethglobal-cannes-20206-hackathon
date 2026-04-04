@@ -5,10 +5,14 @@ import { StatusBadge } from "@/components/ui/status-badge";
 type Tone = "neutral" | "trusted" | "untrusted" | "info";
 
 const metricToneClasses: Record<Tone, string> = {
-  neutral: "border-white/10 bg-white/5 text-[#f7f2df]",
-  trusted: "border-emerald-400/20 bg-emerald-400/10 text-emerald-100",
-  untrusted: "border-amber-400/20 bg-amber-400/10 text-amber-100",
-  info: "border-cyan-400/20 bg-cyan-400/10 text-cyan-100",
+  neutral:
+    "border-[#14305d]/14 bg-[linear-gradient(180deg,#fff2d8,#ffd894)] text-[#71480d] shadow-[0_7px_0_#ddb15f,0_16px_24px_rgba(118,79,16,0.16)]",
+  trusted:
+    "border-[#0f3d72]/14 bg-[linear-gradient(180deg,#86ebc4,#5ed6a7)] text-[#0f4b38] shadow-[0_7px_0_#2ca779,0_16px_24px_rgba(44,167,121,0.18)]",
+  untrusted:
+    "border-[#6f2414]/14 bg-[linear-gradient(180deg,#ffb47b,#ff855b)] text-[#742e18] shadow-[0_7px_0_#dc5d41,0_16px_24px_rgba(174,71,49,0.18)]",
+  info:
+    "border-[#103d72]/14 bg-[linear-gradient(180deg,#93e5ff,#57c8ff)] text-[#0f3a70] shadow-[0_7px_0_#1d92ca,0_16px_24px_rgba(29,146,202,0.18)]",
 };
 
 export function BroadcastMetric({
@@ -21,9 +25,9 @@ export function BroadcastMetric({
   tone?: Tone;
 }) {
   return (
-    <div className={`arena-surface px-4 py-3 ${metricToneClasses[tone]}`}>
-      <p className="arena-kicker text-[var(--arena-copy-muted)]">{label}</p>
-      <p className="mt-3 text-lg font-semibold text-current">{value}</p>
+    <div className={`rounded-[1.45rem] border-2 px-4 py-4 ${metricToneClasses[tone]}`}>
+      <p className="arena-kicker opacity-70">{label}</p>
+      <p className="mt-3 text-lg font-black text-current">{value}</p>
     </div>
   );
 }
@@ -66,8 +70,8 @@ export function IdentityAvatar({
         : "h-14 w-14 rounded-[1.2rem]";
   const ringClasses =
     trustStatus === "trusted"
-      ? "border-emerald-300/35 bg-emerald-400/10 shadow-[0_0_0_1px_rgba(103,217,163,0.08),0_16px_28px_rgba(7,23,17,0.38)]"
-      : "border-amber-300/35 bg-[linear-gradient(180deg,rgba(243,166,63,0.2),rgba(255,118,93,0.08))] shadow-[0_0_0_1px_rgba(243,166,63,0.08),0_16px_28px_rgba(32,18,8,0.38)]";
+      ? "border-[#0f3d72]/14 bg-[linear-gradient(180deg,#86ebc4,#5ed6a7)] shadow-[0_6px_0_#2da97b,0_16px_24px_rgba(44,167,121,0.18)]"
+      : "border-[#6f2414]/14 bg-[linear-gradient(180deg,#ffb47b,#ff855b)] shadow-[0_6px_0_#dc5d41,0_16px_24px_rgba(174,71,49,0.18)]";
 
   return (
     <div className={`relative overflow-hidden border ${sizeClasses} ${ringClasses}`}>
@@ -77,7 +81,7 @@ export function IdentityAvatar({
           style={{ backgroundImage: `url("${avatarUrl}")` }}
         />
       ) : null}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.02))]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,255,255,0.04))]" />
       {!avatarUrl ? (
         <span className="relative z-10 flex h-full w-full items-center justify-center text-sm font-semibold uppercase tracking-[0.18em] text-white">
           {buildInitials(label)}
@@ -106,24 +110,24 @@ function ContestantCard({
 
   return (
     <div
-      className={`arena-surface relative overflow-hidden px-5 py-5 ${align === "right" ? "text-right" : ""} ${
+      className={`relative overflow-hidden rounded-[1.9rem] border-2 px-5 py-5 shadow-[0_14px_24px_rgba(10,19,38,0.18)] ${align === "right" ? "text-right" : ""} ${
         isTrusted
-          ? "border-emerald-300/20 bg-emerald-400/10"
-          : "border-amber-300/20 bg-[linear-gradient(180deg,rgba(243,166,63,0.18),rgba(255,118,93,0.06))]"
+          ? "border-[#0f3d72]/12 bg-[linear-gradient(180deg,rgba(134,235,196,0.3),rgba(76,171,135,0.12))]"
+          : "border-[#6f2414]/14 bg-[linear-gradient(180deg,rgba(255,180,123,0.3),rgba(255,107,94,0.12))]"
       }`}
     >
       <div
-        className={`absolute inset-y-0 w-1.5 ${
-          isTrusted ? "bg-emerald-300/70" : "bg-[var(--arena-amber)]"
-        } ${align === "right" ? "right-0" : "left-0"}`}
+        className={`absolute inset-x-5 top-0 h-1.5 rounded-b-full ${
+          isTrusted ? "bg-[#86ebc4]" : "bg-[#ffb47b]"
+        }`}
       />
-      <p className="arena-kicker text-[var(--arena-copy-muted)]">{seat}</p>
+      <p className="arena-kicker text-white/72">{seat}</p>
       <div className={`mt-4 flex items-center gap-4 ${align === "right" ? "justify-end" : ""}`}>
         {align === "right" ? null : (
           <IdentityAvatar label={label} avatarUrl={avatarUrl} trustStatus={trustStatus} size="lg" />
         )}
         <div>
-          <p className="text-2xl font-semibold text-white">{label}</p>
+          <p className="text-2xl font-black text-white">{label}</p>
           <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">{detail}</p>
         </div>
         {align === "right" ? (
@@ -171,15 +175,15 @@ export function ArenaVsBanner({
   return (
     <section className="arena-panel arena-rise px-5 py-5 sm:px-7 sm:py-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 rounded-full border border-[rgba(255,255,255,0.1)] bg-black/20 px-4 py-2">
+        <div className="flex items-center gap-3 rounded-[999px] border border-[#0f2649]/12 bg-[linear-gradient(180deg,#fff2d8,#ffd893)] px-4 py-2 text-[#71470e] shadow-[0_5px_0_#ddb15c]">
           <span className="arena-live-dot h-2.5 w-2.5 rounded-full bg-[var(--arena-red)]" />
-          <span className="arena-kicker text-[var(--arena-gold)]">Live arena feed</span>
+          <span className="arena-kicker">Live arena feed</span>
         </div>
 
-        <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
-          <span className="rounded-full border border-white/10 px-3 py-2">{phase}</span>
-          <span className="rounded-full border border-white/10 px-3 py-2">{timer}</span>
-          <span className="rounded-full border border-white/10 px-3 py-2">{watchers}</span>
+        <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-[var(--arena-copy-muted)]">
+          <span className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2">{phase}</span>
+          <span className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2">{timer}</span>
+          <span className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2">{watchers}</span>
         </div>
       </div>
 
@@ -194,12 +198,12 @@ export function ArenaVsBanner({
 
         <div className="relative flex flex-col items-center justify-center py-2">
           <p className="arena-kicker text-[var(--arena-gold)]">{title}</p>
-          <div className="relative mt-4 overflow-hidden rounded-[2rem] border border-[rgba(246,198,103,0.2)] bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(8,12,18,0.92))] px-7 py-5 shadow-[0_28px_80px_rgba(0,0,0,0.34)] sm:px-11">
-            <div className="arena-sweep pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[linear-gradient(90deg,transparent,rgba(246,198,103,0.25),transparent)]" />
-            <p className="arena-display text-6xl text-white sm:text-8xl">VS</p>
+          <div className="relative mt-4 overflow-hidden rounded-[2.2rem] border-2 border-[#17315c]/14 bg-[linear-gradient(180deg,#fff1d1,#ffc969)] px-8 py-5 shadow-[0_12px_0_#de9f39,0_28px_40px_rgba(118,79,16,0.2)] sm:px-12">
+            <div className="arena-sweep pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)]" />
+            <p className="arena-display text-6xl text-[#8a340b] sm:text-8xl">VS</p>
           </div>
           <p className="mt-4 max-w-xs text-center text-sm leading-6 text-[var(--arena-copy)]">
-            Transcript stays center stage. Trust styling stays visible even after the duel goes live.
+            Big hero first, transcript second, admin noise last. That is the hierarchy the rest of the product should obey.
           </p>
         </div>
 
@@ -242,12 +246,12 @@ export function TranscriptPreview({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="arena-kicker text-[var(--arena-gold)]">{eyebrow}</p>
-          <h2 className="mt-3 text-2xl font-semibold text-white">{title}</h2>
+          <h2 className="mt-3 text-2xl font-black text-white">{title}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--arena-copy)]">
             {description}
           </p>
         </div>
-        <div className="rounded-full border border-white/10 px-3 py-2 text-xs uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
+        <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2 text-xs uppercase tracking-[0.22em] text-[var(--arena-copy-muted)]">
           Transcript first
         </div>
       </div>
@@ -261,11 +265,11 @@ export function TranscriptPreview({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="arena-kicker text-[var(--arena-copy-muted)]">{turn.marker}</p>
-                <p className="mt-2 text-sm font-semibold uppercase tracking-[0.24em] text-white">
+                <p className="mt-2 text-sm font-extrabold uppercase tracking-[0.18em] text-white">
                   {turn.speaker}
                 </p>
               </div>
-              <div className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
+              <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--arena-copy-muted)]">
                 {turn.tone === "system" ? "Arena desk" : turn.tone === "p1" ? "Left lane" : "Right lane"}
               </div>
             </div>
@@ -289,7 +293,7 @@ export function ArenaCallout({
   return (
     <section className="arena-panel px-5 py-5 sm:px-6 sm:py-6">
       <p className="arena-kicker text-[var(--arena-gold)]">{eyebrow}</p>
-      <h2 className="mt-3 text-2xl font-semibold text-white">{title}</h2>
+      <h2 className="mt-3 text-2xl font-black text-white">{title}</h2>
       <div className="mt-5">{children}</div>
     </section>
   );

@@ -22,21 +22,21 @@ export default function Home() {
           <div className="flex flex-col gap-6 border-b border-white/10 pb-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-4xl">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2">
+                <div className="flex items-center gap-3 rounded-[999px] border border-[#0f2649]/12 bg-[linear-gradient(180deg,#fff2d8,#ffd893)] px-4 py-2 text-[#71470e] shadow-[0_5px_0_#ddb15c]">
                   <span className="arena-live-dot h-2.5 w-2.5 rounded-full bg-[var(--arena-red)]" />
-                  <span className="arena-kicker text-[var(--arena-gold)]">Agent Duel Arena</span>
+                  <span className="arena-kicker">Agent Duel Arena</span>
                 </div>
-                <div className="rounded-full border border-white/10 px-3 py-2 text-xs uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
-                  Live broadcast prototype
+                <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2 text-xs uppercase tracking-[0.22em] text-[var(--arena-copy-muted)]">
+                  Live arena broadcast
                 </div>
               </div>
 
-              <p className="mt-6 arena-kicker text-[var(--arena-gold)]">Website-first arena</p>
-              <h1 className="mt-4 max-w-5xl text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl">
-                Human-backed agents enter the arena. The transcript is the main event.
+              <p className="mt-6 arena-kicker text-[var(--arena-gold)]">Enter the pit</p>
+              <h1 className="mt-4 max-w-5xl text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+                Two minds step in. One transcript decides the crowd.
               </h1>
               <p className="mt-5 max-w-3xl text-base leading-8 text-[var(--arena-copy)] sm:text-lg">
-                World ID verified and unverified players can both compete, but trust status is never hidden. The app should read like a live arena broadcast, not a control panel.
+                Pick a side, build your runner, and throw it into a live duel where every line lands in front of the room.
               </p>
             </div>
 
@@ -63,10 +63,10 @@ export default function Home() {
           </div>
 
           <div className="mt-6 grid gap-3 md:grid-cols-4">
-            <BroadcastMetric label="MVP format" value="6 public messages" tone="trusted" />
-            <BroadcastMetric label="Trust mode" value="Visible on every card" tone="untrusted" />
-            <BroadcastMetric label="Resolution" value="Commit + reveal" tone="info" />
-            <BroadcastMetric label="Watchability" value="Spectators from day one" />
+            <BroadcastMetric label="Fight format" value="6 lines then all-in" tone="trusted" />
+            <BroadcastMetric label="Crowd read" value="No hidden reputations" tone="untrusted" />
+            <BroadcastMetric label="Final swing" value="Locked until reveal" tone="info" />
+            <BroadcastMetric label="Arena mood" value="Always live" />
           </div>
 
           <div className="mt-6">
@@ -77,18 +77,18 @@ export default function Home() {
               watchers="372 crowd online"
               playerOneLabel="Trusted contender"
               playerTwoLabel="Suspicious contender"
-              playerOneDetail="World ID lane, cleaner trust treatment, and sharper identity presentation."
-              playerTwoDetail="Unverified lane stays eligible, but the mood shifts immediately and visibly."
-              footer="The hero stays large on mobile, player cards stack cleanly, and the transcript remains the center of gravity."
+              playerOneDetail="Clean entrance, hard edge, first move pressure."
+              playerTwoDetail="Wildcard energy, louder risk, same spotlight."
+              footer="Big entrance first. Then the transcript starts cutting."
             />
           </div>
         </header>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
           <TranscriptPreview
-            eyebrow="Sample duel feed"
-            title="Broadcast-first transcript framing"
-            description="The duel should read like a match cast. Turn markers stay explicit, trust is visible, and the system phase never disappears behind hidden controls."
+            eyebrow="Hot mic"
+            title="Every line should feel like it matters"
+            description="No clutter, no admin tone, no buried action. The transcript is the fight."
             turns={[
               {
                 marker: "Round 1",
@@ -99,27 +99,27 @@ export default function Home() {
               {
                 marker: "Round 2",
                 speaker: "Player 2",
-                text: "Counter move received. The crowd can still tell this lane is untrusted without losing readability.",
+                text: "Counter shot lands fast. The right lane should feel dangerous before the final move ever drops.",
                 tone: "p2",
               },
               {
                 marker: "System phase",
                 speaker: "Arena desk",
-                text: "Commit and reveal are shown as broadcast phases, not manual chores. Watchers always know what state the duel is in.",
+                text: "The crowd feels the lock-in before the reveal. Tension should read on sight.",
                 tone: "system",
               },
             ]}
           />
 
           <div className="grid gap-6">
-            <ArenaCallout eyebrow="Why it reads fast" title="Judge-facing cues stay visible at a glance">
+            <ArenaCallout eyebrow="Why it hits" title="The room should understand the fight in one look">
               <div className="grid gap-3">
                 <div className="arena-surface px-4 py-4">
                   <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white">
                     Trust mood
                   </p>
                   <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
-                    Trusted entrants look sharper. Untrusted entrants feel slightly suspect without becoming visually muddy.
+                    One side should feel clean. The other should feel a little dangerous.
                   </p>
                 </div>
                 <div className="arena-surface px-4 py-4">
@@ -127,7 +127,7 @@ export default function Home() {
                     Transcript first
                   </p>
                   <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
-                    Chat bubbles and turn markers read before forms, metrics, or backend state. This is a duel product, not a dashboard.
+                    Action reads before setup. The duel comes first.
                   </p>
                 </div>
                 <div className="arena-surface px-4 py-4">
@@ -135,13 +135,13 @@ export default function Home() {
                     Mobile safe
                   </p>
                   <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
-                    Cards stack vertically, the VS hero stays legible, and the interface does not rely on cramped side-by-side panes.
+                    Big shapes, loud hierarchy, clean stacking.
                   </p>
                 </div>
               </div>
             </ArenaCallout>
 
-            <ArenaCallout eyebrow="Sponsor strip" title="Product foundations already visible in the frame">
+            <ArenaCallout eyebrow="Powered by" title="Under the hood, all fight on the stage">
               <div className="grid gap-3 sm:grid-cols-2">
                 {sponsorStrip.map((item) => (
                   <div

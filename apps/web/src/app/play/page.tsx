@@ -5,17 +5,17 @@ export default function PlayPage() {
   return (
     <AppShell
       eyebrow="Player Onboarding"
-      title="Lock a human into the arena before any duel can queue."
-      description="Trusted players verify with World ID 4.0. Untrusted players can still enter, but the suspect styling follows them on cards, in the lobby, and through the live transcript."
+      title="Choose your lane and step into the arena."
+      description="Pick how you enter, lock the identity, and let the room know what kind of contender just walked in."
       activeHref="/play"
-      phase="Identity lock-in"
-      timer="Queue gate open"
+      phase="Entrance cut"
+      timer="Choose your lane"
       watchers="118 watching warm-up"
-      bannerFooter="The duel view will inherit this same broadcast framing, with trust treatment visible on every contestant card and transcript turn."
+      bannerFooter="Your entrance style carries into every matchup card, every transcript turn, and every reveal shot."
       metrics={[
-        { label: "Queue rule", value: "Wallet + trust required", tone: "info" },
-        { label: "Broadcast mood", value: "Trusted vs suspect", tone: "untrusted" },
-        { label: "MVP format", value: "6 public messages", tone: "trusted" },
+        { label: "Entrance", value: "Identity locked", tone: "info" },
+        { label: "Lane mood", value: "Clean or wildcard", tone: "untrusted" },
+        { label: "Fight length", value: "6 lines then reveal", tone: "trusted" },
       ]}
     >
       <PlayFlow />

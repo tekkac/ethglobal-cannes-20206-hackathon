@@ -6,6 +6,7 @@ import type { TrustStatus } from "@agent-duel/shared";
 
 import {
   BroadcastMetric,
+  IdentityAvatar,
   TranscriptPreview,
 } from "@/components/ui/arena-primitives";
 import { Panel } from "@/components/ui/panel";
@@ -94,10 +95,10 @@ export function PlayFlow() {
       <div className="grid gap-6">
         <Panel
           title="Identity Desk"
-          description="For MVP this is still wallet-address-first, but the layout now treats trust mode as a public arena decision instead of a hidden checkbox."
+          description="Pick the way you enter. The room should know your lane the second you lock in."
         >
           <div className="grid gap-4">
-            <div className="arena-surface border-cyan-400/20 bg-cyan-400/10 px-4 py-4 text-sm leading-6 text-cyan-50">
+            <div className="rounded-[1.6rem] border-2 border-[#123f75]/14 bg-[linear-gradient(180deg,#93e5ff,#57c8ff)] px-4 py-4 text-sm font-semibold leading-6 text-[#113b70] shadow-[0_8px_0_#1d92ca,0_16px_24px_rgba(29,146,202,0.18)]">
               {message}
             </div>
 
@@ -117,7 +118,7 @@ export function PlayFlow() {
                 <input
                   value={worldNullifierHash}
                   onChange={(event) => setWorldNullifierHash(event.target.value)}
-                  placeholder="Temporary dev placeholder until real World ID wiring"
+                  placeholder="Arena passcode"
                   className="arena-input"
                 />
               </label>
@@ -128,12 +129,12 @@ export function PlayFlow() {
                 type="button"
                 onClick={() => submitTrustMode("trusted")}
                 disabled={isPending}
-                className="arena-surface border-emerald-400/20 bg-emerald-400/10 p-5 text-left transition hover:border-emerald-300/40"
+                className="rounded-[1.8rem] border-2 border-[#0f3d72]/14 bg-[linear-gradient(180deg,rgba(134,235,196,0.3),rgba(76,171,135,0.12))] p-5 text-left shadow-[0_10px_20px_rgba(10,19,38,0.14)] transition hover:-translate-y-0.5"
               >
-                <StatusBadge tone="trusted">Trusted lane</StatusBadge>
-                <p className="mt-4 text-lg font-semibold text-white">Verify with World ID 4.0</p>
+                <StatusBadge tone="trusted">Prime lane</StatusBadge>
+                <p className="mt-4 text-xl font-black text-white">Enter the clean lane</p>
                 <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
-                  Save the player as trusted. Once real proof validation lands, this stays the premium identity path.
+                  Sharp entrance. Cleaner aura. No mystery about who just stepped in.
                 </p>
               </button>
 
@@ -141,12 +142,12 @@ export function PlayFlow() {
                 type="button"
                 onClick={() => submitTrustMode("untrusted")}
                 disabled={isPending}
-                className="arena-surface border-amber-400/20 bg-[linear-gradient(180deg,rgba(243,166,63,0.18),rgba(255,118,93,0.08))] p-5 text-left transition hover:border-amber-300/40"
+                className="rounded-[1.8rem] border-2 border-[#6f2414]/14 bg-[linear-gradient(180deg,rgba(255,180,123,0.3),rgba(255,107,94,0.12))] p-5 text-left shadow-[0_10px_20px_rgba(10,19,38,0.14)] transition hover:-translate-y-0.5"
               >
-                <StatusBadge tone="untrusted">Suspect lane</StatusBadge>
-                <p className="mt-4 text-lg font-semibold text-white">Continue without verification</p>
+                <StatusBadge tone="untrusted">Wildcard lane</StatusBadge>
+                <p className="mt-4 text-xl font-black text-white">Enter as a wildcard</p>
                 <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
-                  Save the player as untrusted. The copy and color treatment should make that visible without turning the UI into a warning screen.
+                  Same spotlight. Rougher aura. More danger in the read.
                 </p>
               </button>
             </div>
@@ -163,16 +164,16 @@ export function PlayFlow() {
             label="Trust choice"
             value={
               trustChosen === "trusted"
-                ? "Trusted saved"
+                ? "Prime lane locked"
                 : trustChosen === "untrusted"
-                  ? "Untrusted saved"
-                  : "Pending selection"
+                  ? "Wildcard locked"
+                  : "Pick a lane"
             }
             tone={trustChosen ?? "neutral"}
           />
           <BroadcastMetric
             label="Lobby gate"
-            value={trustChosen ? "Ready for runner setup" : "Blocked until chosen"}
+            value={trustChosen ? "Bot tuning unlocked" : "Locked"}
             tone={trustChosen ? "trusted" : "neutral"}
           />
         </div>
@@ -191,14 +192,14 @@ export function PlayFlow() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="arena-kicker text-[var(--arena-gold)]">Contestant preview</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Current player state</h2>
+              <h2 className="mt-3 text-2xl font-black text-white">Current player state</h2>
               <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">
-                This card is the identity lane the lobby and duel will inherit.
+                This is the face the arena sees.
               </p>
             </div>
             {player ? (
               <StatusBadge tone={player.trustStatus}>
-                {player.trustStatus === "trusted" ? "Trusted entrant" : "Might be a sybil"}
+                {player.trustStatus === "trusted" ? "Prime contender" : "Wildcard contender"}
               </StatusBadge>
             ) : null}
           </div>
@@ -207,11 +208,19 @@ export function PlayFlow() {
             {player ? (
               <div className="grid gap-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="arena-kicker text-[var(--arena-copy-muted)]">Display</p>
-                    <p className="mt-2 text-2xl font-semibold text-white">{playerName}</p>
+                  <div className="flex items-center gap-4">
+                    <IdentityAvatar
+                      label={playerName}
+                      avatarUrl={player.ensAvatar}
+                      trustStatus={player.trustStatus}
+                      size="lg"
+                    />
+                    <div>
+                      <p className="arena-kicker text-[var(--arena-copy-muted)]">Display</p>
+                      <p className="mt-2 text-2xl font-black text-white">{playerName}</p>
+                    </div>
                   </div>
-                  <div className="rounded-full border border-white/10 px-3 py-2 text-xs uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
+                  <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2 text-xs uppercase tracking-[0.2em] text-[var(--arena-copy-muted)]">
                     Persisted profile
                   </div>
                 </div>
@@ -224,7 +233,7 @@ export function PlayFlow() {
                   <div className="arena-surface flex items-center justify-between gap-3 px-4 py-3">
                     <span className="text-[var(--arena-copy-muted)]">Trust</span>
                     <StatusBadge tone={player.trustStatus}>
-                      {player.trustStatus === "trusted" ? "Trusted" : "Might be a sybil"}
+                      {player.trustStatus === "trusted" ? "Prime lane" : "Wildcard lane"}
                     </StatusBadge>
                   </div>
                   <div className="arena-surface flex items-center justify-between gap-3 px-4 py-3">
@@ -244,16 +253,16 @@ export function PlayFlow() {
         </section>
 
         <TranscriptPreview
-          eyebrow="Arena desk preview"
-          title="Identity choice gets narrated like match state"
-          description="Even the onboarding route should feel connected to the live duel. The copy below previews how identity status will read once the player enters the lobby."
+          eyebrow="Entrance cut"
+          title="Your entrance should already feel like part of the show"
+          description="Before the duel starts, the room should already know your vibe."
           turns={[
             {
               marker: "Pre-flight",
               speaker: "Arena desk",
               text: walletAddress
-                ? "Wallet signal received. The desk is waiting on trust mode before the lane can go live."
-                : "No wallet signal yet. Arena entry is still locked.",
+                ? "Signal found. Pick the lane and step in."
+                : "No signal yet. The gate stays shut.",
               tone: "system",
             },
             {
@@ -261,14 +270,14 @@ export function PlayFlow() {
               speaker: "Player 1",
               text:
                 trustChosen === "trusted"
-                  ? `${playerName} enters the trusted lane. The badge will stay visible on every lobby and match surface.`
-                  : `${playerName} can still enter untrusted. The UI keeps the warning visible without hiding the player.`,
+                  ? `${playerName} walks in clean and fully lit.`
+                  : `${playerName} walks in as a wildcard and owns the tension.`,
               tone: "p1",
             },
             {
               marker: "Queue rule",
               speaker: "Arena desk",
-              text: "No lobby access until the product knows which trust lane to present for this contestant.",
+              text: "No duel without an entrance. Pick the lane, then load the bot.",
               tone: "system",
             },
           ]}
