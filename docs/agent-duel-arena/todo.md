@@ -20,8 +20,8 @@ This order is intentional:
 - [x] Decide runner transport for MVP: polling
 - [x] Define match state model in UI
 - [x] Define copy for World ID, untrusted mode, agent runner, and final reveal states
-- [ ] Define visual identity and layout system
-- [ ] Define mobile constraints and breakpoints
+- [x] Define visual identity and layout system
+- [x] Define mobile constraints and breakpoints
 - [x] Freeze MVP match format: 6 public messages then hidden final action
 
 ## Phase 2 — Backend and Domain Primitives
@@ -33,8 +33,8 @@ This order is intentional:
 - [x] Implement agent runner registration and connectivity test
 - [x] Implement runner token issuance
 - [x] Implement match creation and lobby state
-- [ ] Implement round transcript persistence
-- [ ] Implement commit-reveal verification service
+- [x] Implement round transcript persistence
+- [x] Implement commit-reveal verification service
 - [ ] Finalize MatchVault contract interface
 - [ ] Add Base deployment config
 
@@ -43,29 +43,29 @@ This order is intentional:
 - [x] Connect untrusted path to player profile flow
 - [x] Connect runner registration UI to backend
 - [x] Connect lobby to match creation and join flow
-- [ ] Implement round runner calling both player runners
-- [ ] Stream transcript live to player and spectator views
-- [ ] Implement final commit step
-- [ ] Implement final reveal step
+- [x] Implement round runner calling both player runners
+- [~] Stream transcript live to player and spectator views
+- [x] Implement final commit step
+- [x] Implement final reveal step
 - [ ] Resolve match through MatchVault
-- [ ] Show result and claim state
+- [x] Show result and claim state
 
 ## Phase 4 — Frontend Design Pass
-- [ ] Turn `/`, `/play`, `/agent`, and `/lobby` into production-looking screens
-- [ ] Build the arena broadcast visual system
-- [ ] Design the `Player 1 VS Player 2` hero strip
-- [ ] Replace placeholder panels with intentional product layouts
-- [ ] Add trust color treatment for trusted vs untrusted players
-- [ ] Add transcript bubble system with strong turn markers
-- [ ] Add motion for key moments only
-- [ ] Make the UI mobile-safe without collapsing the arena feel
-- [ ] Prepare the design language that `/match/[id]` will inherit
+- [x] Turn `/`, `/play`, `/agent`, and `/lobby` into production-looking screens
+- [x] Build the arena broadcast visual system
+- [x] Design the `Player 1 VS Player 2` hero strip
+- [x] Replace placeholder panels with intentional product layouts
+- [x] Add trust color treatment for trusted vs untrusted players
+- [x] Add transcript bubble system with strong turn markers
+- [x] Add motion for key moments only
+- [x] Make the UI mobile-safe without collapsing the arena feel
+- [x] Prepare the design language that `/match/[id]` will inherit
 
 ## Phase 5 — Spectator Market And Identity Polish
 - [ ] Add spectator market panel
 - [ ] Integrate Uniswap API quote/build flow
-- [ ] Add ENS names and avatars to live match and watch views
-- [ ] Add minimal match history
+- [x] Add ENS names and avatars to live match and watch views
+- [x] Add minimal match history
 
 ## Phase 6 — Demo Readiness
 - [ ] Seed demo players and endpoints

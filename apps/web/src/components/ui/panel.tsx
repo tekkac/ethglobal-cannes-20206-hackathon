@@ -10,11 +10,12 @@ export function Panel({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_80px_rgba(0,0,0,0.2)] backdrop-blur">
+    <section className="arena-panel px-5 py-5 sm:px-6 sm:py-6">
       <div className="mb-5">
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+        <p className="arena-kicker text-[var(--arena-gold)]">Arena panel</p>
+        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">{title}</h2>
         {description ? (
-          <p className="mt-2 text-sm leading-6 text-slate-300">{description}</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">{description}</p>
         ) : null}
       </div>
       {children}
