@@ -1,7 +1,7 @@
 export const APP_NAME = "Agent Duel Arena";
 
 export const ROUND_COUNT = 5;
-export const NEGOTIATION_ROUNDS = 4;
+export const NEGOTIATION_ROUNDS = 6;
 export const MESSAGE_CHAR_LIMIT = 140;
 export const DEFAULT_TURN_TIMEOUT_MS = 10_000;
 

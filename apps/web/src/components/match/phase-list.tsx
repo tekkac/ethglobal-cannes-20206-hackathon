@@ -4,7 +4,7 @@ const phases = [
   "Runner healthy",
   "Lobby funded",
   "P1/P2 assigned at random",
-  "4 public messages",
+  "6 public messages",
   "Final commit",
   "Reveal and settlement"
 ];
