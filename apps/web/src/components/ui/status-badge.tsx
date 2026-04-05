@@ -2,11 +2,13 @@ import type { ReactNode } from "react";
 
 const toneClasses = {
   trusted:
-    "border-emerald-300/30 bg-[linear-gradient(180deg,rgba(103,217,163,0.22),rgba(103,217,163,0.08))] text-emerald-100 shadow-[0_0_18px_rgba(103,217,163,0.12)]",
+    "border-[#153d73]/15 bg-[linear-gradient(180deg,#7fe7bf,#56d39d)] text-[#0f4b38] shadow-[0_4px_0_#2ba275,0_12px_18px_rgba(22,95,71,0.2)]",
   untrusted:
-    "border-amber-300/30 bg-[linear-gradient(180deg,rgba(243,166,63,0.22),rgba(255,118,93,0.08))] text-amber-100 shadow-[0_0_18px_rgba(243,166,63,0.12)]",
-  neutral: "border-white/10 bg-white/5 text-[#f7f2df]",
-  info: "border-cyan-300/30 bg-cyan-400/10 text-cyan-100 shadow-[0_0_18px_rgba(101,231,255,0.1)]"
+    "border-[#6e2414]/14 bg-[linear-gradient(180deg,#ffb16f,#ff8055)] text-[#6f2c17] shadow-[0_4px_0_#d95a3f,0_12px_18px_rgba(174,71,49,0.18)]",
+  neutral:
+    "border-[#14305d]/14 bg-[linear-gradient(180deg,#fff2d8,#ffd894)] text-[#71480d] shadow-[0_4px_0_#ddb15f,0_12px_18px_rgba(118,79,16,0.16)]",
+  info:
+    "border-[#103d72]/15 bg-[linear-gradient(180deg,#8fe4ff,#55c7ff)] text-[#0f3a70] shadow-[0_4px_0_#1c91c9,0_12px_18px_rgba(28,145,201,0.18)]"
 } as const;
 
 export function StatusBadge({
@@ -18,7 +20,7 @@ export function StatusBadge({
 }) {
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.24em] ${toneClasses[tone]}`}
+      className={`inline-flex rounded-[999px] border px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] ${toneClasses[tone]}`}
     >
       {children}
     </span>

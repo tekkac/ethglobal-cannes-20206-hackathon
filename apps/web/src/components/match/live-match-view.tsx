@@ -87,7 +87,7 @@ function trustCopy(player: MatchPlayer | null) {
     return "Seat pending";
   }
 
-  return player.trustStatus === "trusted" ? "Trusted entrant" : "Might be a sybil";
+  return player.trustStatus === "trusted" ? "Prime contender" : "Wildcard contender";
 }
 
 export function LiveMatchView({
@@ -141,11 +141,11 @@ export function LiveMatchView({
         <section className="arena-panel px-5 py-5 sm:px-6 sm:py-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/20 px-4 py-2">
+              <div className="flex items-center gap-3 rounded-[999px] border border-[#0f2649]/12 bg-[linear-gradient(180deg,#fff2d8,#ffd893)] px-4 py-2 text-[#71470e] shadow-[0_5px_0_#ddb15c]">
                 <span className="arena-live-dot h-2.5 w-2.5 rounded-full bg-[var(--arena-red)]" />
-                <span className="arena-kicker text-[var(--arena-gold)]">Live duel feed</span>
+                <span className="arena-kicker">Live duel feed</span>
               </div>
-              <div className="rounded-full border border-white/10 px-3 py-2 text-xs uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
+              <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-2 text-xs uppercase tracking-[0.18em] text-[var(--arena-copy-muted)]">
                 Match {match.id.slice(-6)}
               </div>
             </div>
@@ -179,17 +179,17 @@ export function LiveMatchView({
               playerOneDetail={
                 match.readyToWatch
                   ? `${trustCopy(match.playerOne)}. P1 speaks first and frames the duel in the transcript lane.`
-                  : "Seat assignment reveals right before the match starts."
+                  : "The draw lands right before the lights hit."
               }
               playerTwoDetail={
                 match.readyToWatch
                   ? `${trustCopy(match.playerTwo)}. P2 answers under the same public spotlight.`
-                  : "Second seat opens as soon as the lobby fills."
+                  : "The second lane opens as soon as the room fills."
               }
               footer={
                 match.readyToWatch
-                  ? "The transcript below auto-refreshes as the duel advances through public rounds, final commit, and final reveal."
-                  : "This waiting room stays watchable before the duel is live. P1/P2 are only revealed when both sides are locked in."
+                  ? "The fight scrolls live and the room feels every phase change."
+                  : "The stage is set. The draw lands when both lanes lock in."
               }
             />
           </div>
@@ -200,11 +200,24 @@ export function LiveMatchView({
             title={match.readyToWatch ? "Live transcript" : "Waiting room feed"}
             description={
               match.readyToWatch
-                ? "Transcript is the dominant element. Player turns stay explicit and system phases are visible instead of hidden behind backend state."
-                : "The duel has not started yet. This screen holds the broadcast frame until the second player joins and seats are assigned."
+                ? "The transcript is the fight. Everything else supports it."
+                : "The stage is waiting on the second lane."
             }
           >
-            <div className="grid gap-3">
+            <div className="mb-4 rounded-[1.7rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.04))] px-4 py-4 shadow-[0_14px_20px_rgba(10,19,38,0.12)]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="arena-kicker text-[var(--arena-copy-muted)]">Stage feed</p>
+                  <p className="mt-2 text-xl font-black text-white">
+                    {match.readyToWatch ? "Commentary lane is live" : "Arena camera waiting on seat lock"}
+                  </p>
+                </div>
+                <StatusBadge tone={match.readyToWatch ? "info" : "neutral"}>
+                  {match.readyToWatch ? `${match.transcript.length} turns aired` : "Pre-show"}
+                </StatusBadge>
+              </div>
+            </div>
+            <div className="grid gap-4">
               {match.transcript.length > 0 ? (
                 match.transcript.map((entry) => (
                   <article
@@ -214,17 +227,17 @@ export function LiveMatchView({
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="arena-kicker text-[var(--arena-copy-muted)]">{entry.phase.replaceAll("_", " ")}</p>
-                        <p className="mt-2 text-sm font-semibold uppercase tracking-[0.24em] text-white">
+                        <p className="mt-2 text-sm font-extrabold uppercase tracking-[0.18em] text-white">
                           {entry.speakerLabel}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         {entry.seatLabel ? (
-                          <div className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
+                          <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--arena-copy-muted)]">
                             {entry.seatLabel}
                           </div>
                         ) : null}
-                        <div className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-[var(--arena-copy-muted)]">
+                        <div className="rounded-[999px] border border-white/10 bg-white/[0.08] px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[var(--arena-copy-muted)]">
                           Turn {entry.turnIndex}
                         </div>
                       </div>
@@ -234,7 +247,7 @@ export function LiveMatchView({
                 ))
               ) : (
                 <div className="arena-surface px-4 py-4 text-sm leading-6 text-[var(--arena-copy-muted)]">
-                  No public transcript yet. The broadcast will open as soon as the second player joins and seat assignment is revealed.
+                  No lines yet. The crowd is waiting for the draw.
                 </div>
               )}
             </div>
@@ -243,7 +256,7 @@ export function LiveMatchView({
           <div className="grid gap-6">
             <Panel
               title="Phase HUD"
-              description="Phase, trust, and timer stay visible on small screens so the match is readable without side-by-side crowding."
+              description="Keep the pulse, the phase, and the count in sight at all times."
             >
               <div className="grid gap-3">
                 {phaseLabels.map((label, index) => {
@@ -253,19 +266,25 @@ export function LiveMatchView({
                   return (
                     <div
                       key={label}
-                      className={`arena-surface flex items-center justify-between gap-3 px-4 py-3 ${
+                      className={`rounded-[1.45rem] border-2 px-4 py-3 shadow-[0_10px_16px_rgba(10,19,38,0.12)] ${
                         isActive
-                          ? "border-cyan-300/30 bg-cyan-400/10"
+                          ? "border-[#123f75]/14 bg-[linear-gradient(180deg,#93e5ff,#57c8ff)]"
                           : isReached
-                            ? "border-emerald-300/20 bg-emerald-400/10"
-                            : ""
+                            ? "border-[#0f3d72]/14 bg-[linear-gradient(180deg,#86ebc4,#5ed6a7)]"
+                            : "border-white/10 bg-white/[0.07]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-sm font-semibold text-white">
+                        <span className={`flex h-10 w-10 items-center justify-center rounded-[1rem] border-2 text-sm font-black ${
+                          isActive
+                            ? "border-[#123f75]/14 bg-white/40 text-[#113b70]"
+                            : isReached
+                              ? "border-[#0f3d72]/14 bg-white/30 text-[#0f4b38]"
+                              : "border-white/10 bg-white/[0.08] text-white"
+                        }`}>
                           {index + 1}
                         </span>
-                        <span className="text-sm text-[var(--arena-copy)]">{label}</span>
+                        <span className={`text-sm font-semibold ${isActive || isReached ? "text-white" : "text-[var(--arena-copy)]"}`}>{label}</span>
                       </div>
                       {isActive ? <StatusBadge tone="info">Live</StatusBadge> : null}
                     </div>
@@ -276,14 +295,14 @@ export function LiveMatchView({
 
             <Panel
               title="Contestant trust"
-              description="Trust is a visual property of the duel, not a tiny badge tucked into metadata."
+              description="The room should read each lane instantly."
             >
               <div className="grid gap-3">
                 {[
                   { seat: "Player 1", player: match.playerOne },
                   { seat: "Player 2", player: match.playerTwo },
                 ].map(({ seat, player }) => (
-                  <div key={seat} className="arena-surface px-4 py-4">
+                  <div key={seat} className="rounded-[1.65rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-4 py-4 shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-start gap-4">
                         {player ? (
@@ -296,13 +315,13 @@ export function LiveMatchView({
                         ) : null}
                         <div>
                           <p className="arena-kicker text-[var(--arena-copy-muted)]">{seat}</p>
-                          <p className="mt-2 text-lg font-semibold text-white">{renderName(player, `${seat} pending`)}</p>
+                          <p className="mt-2 text-lg font-black text-white">{renderName(player, `${seat} pending`)}</p>
                           <p className="mt-2 text-sm leading-6 text-[var(--arena-copy)]">{trustCopy(player)}</p>
                         </div>
                       </div>
                       {player ? (
                         <StatusBadge tone={player.trustStatus}>
-                          {player.trustStatus === "trusted" ? "Trusted" : "Might be a sybil"}
+                          {player.trustStatus === "trusted" ? "Prime lane" : "Wildcard lane"}
                         </StatusBadge>
                       ) : (
                         <StatusBadge tone="neutral">Pending</StatusBadge>
@@ -314,18 +333,18 @@ export function LiveMatchView({
             </Panel>
 
             <Panel
-              title="Settlement"
-              description="Verified reveal now flows into payout state, and the owning player can claim if a payout exists."
+              title="Final board"
+              description="The lock breaks, the move shows, the board pays out."
             >
               <div className="grid gap-3">
-                <div className="arena-surface px-4 py-4 text-sm leading-6 text-[var(--arena-copy)]">
+                <div className="rounded-[1.65rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-4 py-4 text-sm leading-6 text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
                   {match.readyToWatch
-                    ? "This match now persists transcript progression and reveal state in storage. The page is reading a real evolving match record, not just a static mock screen."
-                    : "The waiting room is live now. Once the second entrant joins, the page will reveal P1/P2, begin the transcript cadence, and advance through the final commit and reveal phases."}
+                    ? "The duel is live. Stay on the board and watch it unfold."
+                    : "Both lanes are almost in. The room is about to flip live."}
                 </div>
                 {match.finalActions.playerOne || match.finalActions.playerTwo ? (
-                  <div className="arena-surface px-4 py-4 text-sm leading-6 text-[var(--arena-copy)]">
-                    <p className="arena-kicker text-[var(--arena-copy-muted)]">Reveal state</p>
+                  <div className="rounded-[1.65rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-4 py-4 text-sm leading-6 text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
+                    <p className="arena-kicker text-[var(--arena-copy-muted)]">Final move</p>
                     <p className="mt-3 text-white">
                       P1: {match.finalActions.playerOne ?? "Hidden"} | P2: {match.finalActions.playerTwo ?? "Hidden"}
                     </p>
@@ -334,20 +353,20 @@ export function LiveMatchView({
                     ) : null}
                   </div>
                 ) : null}
-                <div className="arena-surface px-4 py-4 text-sm leading-6 text-[var(--arena-copy)]">
-                  <p className="arena-kicker text-[var(--arena-copy-muted)]">Commit integrity</p>
+                <div className="rounded-[1.65rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-4 py-4 text-sm leading-6 text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
+                  <p className="arena-kicker text-[var(--arena-copy-muted)]">Lock state</p>
                   <p className="mt-3 text-white">
-                    P1 committed: {match.commitmentState.playerOneCommitted ? "yes" : "no"} | P2 committed: {match.commitmentState.playerTwoCommitted ? "yes" : "no"}
+                    P1 locked: {match.commitmentState.playerOneCommitted ? "yes" : "no"} | P2 locked: {match.commitmentState.playerTwoCommitted ? "yes" : "no"}
                   </p>
                   <p className="mt-2 text-white">
-                    Reveal verified: {match.commitmentState.revealVerified ? "yes" : "pending"}
+                    Reveal open: {match.commitmentState.revealVerified ? "yes" : "pending"}
                   </p>
                   {match.commitmentState.verificationError ? (
                     <p className="mt-3 text-amber-200">{match.commitmentState.verificationError}</p>
                   ) : null}
                 </div>
-                <div className="arena-surface px-4 py-4 text-sm leading-6 text-[var(--arena-copy)]">
-                  <p className="arena-kicker text-[var(--arena-copy-muted)]">Payout board</p>
+                <div className="rounded-[1.65rem] border-2 border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] px-4 py-4 text-sm leading-6 text-[var(--arena-copy)] shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
+                  <p className="arena-kicker text-[var(--arena-copy-muted)]">Prize board</p>
                   <div className="mt-3 grid gap-3">
                     {[
                       {
@@ -363,7 +382,7 @@ export function LiveMatchView({
                         claimed: match.settlement.playerTwoClaimed,
                       },
                     ].map(({ seat, player, payout, claimed }) => (
-                      <div key={seat} className="rounded-[1.35rem] border border-white/10 bg-white/[0.04] px-4 py-3">
+                      <div key={seat} className="rounded-[1.5rem] border-2 border-white/10 bg-white/[0.07] px-4 py-3 shadow-[0_10px_16px_rgba(10,19,38,0.12)]">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-3">
                             {player ? (
@@ -375,20 +394,20 @@ export function LiveMatchView({
                             ) : null}
                             <div>
                               <p className="arena-kicker text-[var(--arena-copy-muted)]">{seat}</p>
-                              <p className="mt-1 font-semibold text-white">{renderName(player, seat)}</p>
+                              <p className="mt-1 font-black text-white">{renderName(player, seat)}</p>
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="text-white">{payout} USDC</p>
                             <p className="mt-1 text-xs uppercase tracking-[0.24em] text-[var(--arena-copy-muted)]">
-                              {claimed ? "Claimed" : "Available"}
+                              {claimed ? "Taken" : "Live"}
                             </p>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <p className="mt-2 text-[var(--arena-copy)]">Settlement status: {match.settlement.status}</p>
+                  <p className="mt-2 text-[var(--arena-copy)]">Board status: {match.settlement.status}</p>
                   {claimMessage ? <p className="mt-3 text-cyan-100">{claimMessage}</p> : null}
                   {canClaim ? (
                     <button

@@ -108,8 +108,8 @@ describe("live match view", () => {
     expect(html).toContain("alpha.eth");
     expect(html).toContain("beta.eth");
     expect(html).toContain("Live transcript");
-    expect(html).toContain("Payout board");
+    expect(html).toContain("Prize board");
     expect(html).toContain("10.00 USDC");
-    expect(html).toContain("Reveal verified: yes");
+    expect(html).toContain("Reveal open: yes");
   });
 });

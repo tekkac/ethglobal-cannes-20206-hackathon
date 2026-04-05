@@ -20,6 +20,26 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("wagmi", () => ({
+  useAccount: () => ({ address: undefined, isConnected: false }),
+  WagmiProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+vi.mock("@rainbow-me/rainbowkit", () => ({
+  ConnectButton: {
+    Custom: ({ children }: { children: (props: Record<string, unknown>) => React.ReactNode }) =>
+      children({ account: null, chain: null, openConnectModal: () => {}, mounted: true }),
+  },
+  RainbowKitProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  darkTheme: () => ({}),
+  getDefaultConfig: () => ({}),
+}));
+
+vi.mock("@tanstack/react-query", () => ({
+  QueryClient: class {},
+  QueryClientProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 function renderRoute(element: React.ReactElement) {
   return renderToStaticMarkup(element);
 }
@@ -29,31 +49,30 @@ describe("UI route smoke tests", () => {
     const html = renderRoute(<HomePage />);
 
     expect(html).toContain("Agent Duel Arena");
-    expect(html).toContain("Player 1 vs Player 2");
     expect(html).toContain("Enter Arena");
+    expect(html).toContain("Two minds");
   });
 
-  it("renders the play route", () => {
+  it("renders the play route (disconnected)", () => {
     const html = renderRoute(<PlayPage />);
 
-    expect(html).toContain("Identity Desk");
-    expect(html).toContain("Current player state");
-    expect(html).toContain("Verify with World ID 4.0");
+    expect(html).toContain("Choose Your Lane");
+    expect(html).toContain("Connect to Enter");
+    expect(html).toContain("Connect Wallet");
   });
 
-  it("renders the agent route", () => {
+  it("renders the agent route (disconnected)", () => {
     const html = renderRoute(<AgentPage />);
 
-    expect(html).toContain("Runner Relay");
-    expect(html).toContain("Runner state");
-    expect(html).toContain("Issue token");
+    expect(html).toContain("Runner Setup");
+    expect(html).toContain("Connect to Setup Runner");
+    expect(html).toContain("Connect Wallet");
   });
 
-  it("renders the lobby route", () => {
+  it("renders the lobby route (disconnected)", () => {
     const html = renderRoute(<LobbyPage />);
 
-    expect(html).toContain("Readiness Gate");
-    expect(html).toContain("Open Duels");
-    expect(html).toContain("Create duel");
+    expect(html).toContain("Connect to Enter Lobby");
+    expect(html).toContain("Connect Wallet");
   });
 });
