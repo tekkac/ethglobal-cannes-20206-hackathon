@@ -14,6 +14,6 @@ broadcast
 cache
 artifacts
 typechain-types
-lib
+/contracts/lib
 target
 openzeppelin-upgrades
