@@ -170,7 +170,7 @@ export function ArenaVsBanner({
   playerTwoDetail: string;
   playerOneTrust?: "trusted" | "untrusted";
   playerTwoTrust?: "trusted" | "untrusted";
-  footer: string;
+  footer?: string;
 }) {
   return (
     <section className="arena-panel arena-rise px-5 py-5 sm:px-7 sm:py-7">
@@ -202,9 +202,6 @@ export function ArenaVsBanner({
             <div className="arena-sweep pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)]" />
             <p className="arena-display text-6xl text-[#8a340b] sm:text-8xl">VS</p>
           </div>
-          <p className="mt-4 max-w-xs text-center text-sm leading-6 text-[var(--arena-copy)]">
-            Big hero first, transcript second, admin noise last. That is the hierarchy the rest of the product should obey.
-          </p>
         </div>
 
         <ContestantCard
@@ -217,10 +214,12 @@ export function ArenaVsBanner({
         />
       </div>
 
-      <div className="arena-surface mt-6 flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <span className="arena-kicker text-[var(--arena-copy-muted)]">Broadcast note</span>
-        <p className="text-sm leading-6 text-[var(--arena-copy)]">{footer}</p>
-      </div>
+      {footer ? (
+        <div className="arena-surface mt-6 flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <span className="arena-kicker text-[var(--arena-copy-muted)]">Broadcast note</span>
+          <p className="text-sm leading-6 text-[var(--arena-copy)]">{footer}</p>
+        </div>
+      ) : null}
     </section>
   );
 }
