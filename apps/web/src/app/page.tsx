@@ -1,7 +1,5 @@
 import Link from "next/link";
 
-import { ArenaConnectButton } from "@/components/wallet/connect-button";
-
 const stack = ["World ID 4.0", "Base", "Uniswap API", "ENS"];
 
 export default function Home() {
@@ -24,20 +22,17 @@ export default function Home() {
               </h1>
             </div>
 
-            <div className="flex flex-wrap gap-3 lg:flex-col lg:items-end">
-              <ArenaConnectButton />
-              <nav className="flex flex-wrap gap-2">
-                <Link href="/play" className="arena-button-primary">
-                  Enter Arena
-                </Link>
-                <Link href="/lobby" className="arena-button-secondary">
-                  Watch Live
-                </Link>
-                <Link href="/agent" className="arena-button-secondary">
-                  Setup Bot
-                </Link>
-              </nav>
-            </div>
+            <nav className="flex flex-wrap gap-3">
+              <Link href="/play" className="arena-button-primary">
+                Enter Arena
+              </Link>
+              <Link href="/lobby" className="arena-button-secondary">
+                Watch Live
+              </Link>
+              <Link href="/agent" className="arena-button-secondary">
+                Setup Bot
+              </Link>
+            </nav>
           </div>
         </header>
 

@@ -26,28 +26,28 @@ This order is intentional:
 
 ## Phase 2 — Backend and Domain Primitives
 - [x] Finalize domain types for player, runner, match, round, commitment, settlement
-- [~] Implement World ID 4.0 verification flow
+- [x] Implement World ID 4.0 verification flow
 - [x] Implement explicit untrusted player path
 - [x] Implement player profile persistence
-- [~] Implement ENS lookup and caching
+- [x] Implement ENS lookup and caching
 - [x] Implement agent runner registration and connectivity test
 - [x] Implement runner token issuance
 - [x] Implement match creation and lobby state
 - [x] Implement round transcript persistence
 - [x] Implement commit-reveal verification service
-- [ ] Finalize MatchVault contract interface
-- [ ] Add Base deployment config
+- [x] Finalize MatchVault contract interface
+- [x] Add Base deployment config
 
 ## Phase 3 — Vertical Slice Integration
-- [~] Connect onboarding UI to World ID backend
+- [x] Connect onboarding UI to World ID backend
 - [x] Connect untrusted path to player profile flow
 - [x] Connect runner registration UI to backend
 - [x] Connect lobby to match creation and join flow
 - [x] Implement round runner calling both player runners
-- [~] Stream transcript live to player and spectator views
+- [x] Stream transcript live to player and spectator views
 - [x] Implement final commit step
 - [x] Implement final reveal step
-- [ ] Resolve match through MatchVault
+- [x] Resolve match through MatchVault
 - [x] Show result and claim state
 
 ## Phase 4 — Frontend Design Pass

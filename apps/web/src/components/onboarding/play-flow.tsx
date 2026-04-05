@@ -23,6 +23,7 @@ type PlayerRecord = {
 
 async function loadPlayer(walletAddress: string) {
   const response = await fetch(`/api/me?walletAddress=${encodeURIComponent(walletAddress)}`);
+  if (!response.ok) return { player: null };
   return response.json();
 }
 

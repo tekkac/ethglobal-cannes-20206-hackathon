@@ -1,8 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { ArenaConnectButton } from "@/components/wallet/connect-button";
-
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/play", label: "Play" },
@@ -50,7 +48,6 @@ export function AppShell({
                   </Link>
                 ))}
               </nav>
-              <ArenaConnectButton />
             </div>
           </div>
         </header>

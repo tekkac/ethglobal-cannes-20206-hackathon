@@ -1,3 +1,20 @@
+import { vi } from "vitest";
+
+vi.mock("@/lib/services/settlement", () => ({
+  resolveMatchOnChain: vi.fn().mockResolvedValue({ error: "not configured" }),
+  cancelMatchOnChain: vi.fn().mockResolvedValue({ error: "not configured" }),
+}));
+
+vi.mock("@/lib/services/ens", () => ({
+  resolveEnsProfile: vi.fn().mockImplementation((address: string) => {
+    const short = address.length > 10 ? `${address.slice(0, 6)}...${address.slice(-4)}` : address;
+    return Promise.resolve({
+      name: `arena-${short}`,
+      avatar: `data:image/svg+xml;base64,dGVzdA==`,
+    });
+  }),
+}));
+
 import {
   claimMatchPayout,
   createMatch,
