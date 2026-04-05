@@ -147,6 +147,32 @@ export function LobbyReadiness() {
     });
   }
 
+  function handleSelfPlay() {
+    if (!walletAddress) {
+      setMessage("No saved wallet address.");
+      return;
+    }
+
+    startTransition(async () => {
+      const response = await fetch("/api/matches/self-play", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletAddress, stakeAmount }),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        setMessage(payload.error ?? "Failed to create self-play match.");
+        return;
+      }
+
+      await refreshLobbyState(walletAddress);
+      setActiveMatchId(payload.match.id);
+      setMessage("Self-play match started. Your agent plays both sides.");
+    });
+  }
+
   function handleJoinMatch(matchId: string) {
     if (!walletAddress) {
       setMessage("No saved wallet address.");
@@ -250,14 +276,24 @@ export function LobbyReadiness() {
               />
             </label>
 
-            <button
-              type="button"
-              onClick={handleCreateMatch}
-              disabled={isPending || !ready}
-              className="arena-button-primary"
-            >
-              Create duel
-            </button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={handleCreateMatch}
+                disabled={isPending || !ready}
+                className="arena-button-primary"
+              >
+                Create duel
+              </button>
+              <button
+                type="button"
+                onClick={handleSelfPlay}
+                disabled={isPending || !ready}
+                className="arena-button-secondary"
+              >
+                Self-play test
+              </button>
+            </div>
 
             {activeMatchId ? (
               <Link href={`/match/${activeMatchId}`} className="arena-button-secondary text-center">

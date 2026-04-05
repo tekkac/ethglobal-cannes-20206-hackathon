@@ -1028,6 +1028,58 @@ export function joinMatch(matchId: string, walletAddress: string) {
   return { match: mapMatchListItem(row) };
 }
 
+export function createSelfPlayMatch(input: CreateMatchInput) {
+  const db = getDb();
+  const walletAddress = normalizeWalletAddress(input.walletAddress);
+
+  if (!playerIsLobbyReady(walletAddress)) {
+    return {
+      error: "Player must choose trust mode and register a healthy runner before entering the lobby.",
+    };
+  }
+
+  const id = `match_${randomUUID().replaceAll("-", "")}`;
+  const timestamp = nowIso();
+  const watcherCount = 80 + (id.charCodeAt(id.length - 1) % 170);
+  const playerASeat = parseInt(id.replace(/\D/g, "").slice(-1) || "0", 10) % 2 === 0 ? "P1" : "P2";
+  const playerBSeat = playerASeat === "P1" ? "P2" : "P1";
+
+  db.prepare(
+    `INSERT INTO matches (
+      id, stake_amount, status, phase,
+      player_a_wallet, player_b_wallet,
+      player_a_seat, player_b_seat,
+      watcher_count, live_started_at, resolved_at,
+      player_one_commitment, player_two_commitment,
+      player_one_commit_secret, player_two_commit_secret,
+      player_one_committed_action, player_two_committed_action,
+      player_one_final_action, player_two_final_action,
+      commit_verified_at, reveal_verification_error,
+      settlement_status, player_one_payout, player_two_payout,
+      player_one_claimed_at, player_two_claimed_at,
+      resolution_summary, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    input.stakeAmount.trim(),
+    "live",
+    "waiting_to_start",
+    walletAddress,
+    walletAddress,
+    playerASeat,
+    playerBSeat,
+    watcherCount,
+    timestamp,
+    null, null, null, null, null, null, null, null, null, null, null,
+    "pending", null, null, null, null, null,
+    timestamp, timestamp,
+  );
+
+  const row = getMatchRow(id);
+  if (!row) return { error: "Failed to create self-play match." };
+  return { match: mapMatchListItem(row) };
+}
+
 export function claimMatchPayout(matchId: string, walletAddress: string) {
   const db = getDb();
   const row = getMatchRow(matchId);
