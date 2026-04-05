@@ -16,7 +16,7 @@ export function WorldIdButton({
   return (
     <IDKitWidget
       app_id={appId as `app_${string}`}
-      action="verify-human"
+      action="enter-arena"
       signal={walletAddress}
       onSuccess={onVerified}
       verification_level={VerificationLevel.Orb}

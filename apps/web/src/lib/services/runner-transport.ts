@@ -49,7 +49,7 @@ async function callRemoteRunner<T>(
   path: string,
   body: Record<string, unknown>,
 ): Promise<T | null> {
-  if (runner.mode !== "self-hosted" || !runner.endpointUrl) {
+  if (!runner.endpointUrl) {
     return null;
   }
 
