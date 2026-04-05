@@ -661,6 +661,21 @@ async function syncMatchProgress(row: MatchRow, nowMs = Date.now()) {
       ? computeSettlement(row.stake_amount, revealVerification.playerOneAction, revealVerification.playerTwoAction)
       : null;
 
+  // Fire-and-forget on-chain resolution when settlement is computed
+  if (settlement && revealVerification && !revealVerification.verificationError) {
+    import("@/lib/services/settlement")
+      .then(({ resolveMatchOnChain }) =>
+        resolveMatchOnChain({
+          matchId: row.id,
+          finalActionA: revealVerification.playerOneAction,
+          finalActionB: revealVerification.playerTwoAction,
+        }),
+      )
+      .catch(() => {
+        // On-chain settlement is best-effort — off-chain state is authoritative for MVP
+      });
+  }
+
   if (
     dueEntries.length > 0 ||
     row.phase !== phaseState.phase ||
