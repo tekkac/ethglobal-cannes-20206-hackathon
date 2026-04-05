@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     return badRequest("Invalid runner registration payload", parsed.error.flatten());
   }
 
-  const runner = registerRunner({
+  const runner = await registerRunner({
     walletAddress: parsed.data.walletAddress,
     runnerLabel: parsed.data.runnerLabel,
     mode: parsed.data.mode,

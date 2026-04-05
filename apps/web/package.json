@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "@agent-duel/shared": "workspace:*",
+    "@libsql/client": "^0.17.2",
     "@rainbow-me/rainbowkit": "^2.2.10",
     "@tanstack/react-query": "^5.96.2",
     "@worldcoin/idkit": "^1.3.0",
-    "better-sqlite3": "^12.4.1",
     "drizzle-orm": "^0.44.6",
     "next": "16.2.2",
     "react": "19.2.4",
@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

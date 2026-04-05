@@ -38,7 +38,7 @@ describe("lobby flow services", () => {
       worldNullifierHash: "dev-aaa",
     });
 
-    const result = createMatch({
+    const result = await createMatch({
       walletAddress: "0xaaa",
       stakeAmount: "5",
     });
@@ -55,32 +55,32 @@ describe("lobby flow services", () => {
       trustStatus: "trusted",
       worldNullifierHash: "dev-111",
     });
-    registerRunner({
+    await registerRunner({
       walletAddress: "0x111",
       runnerLabel: "Runner A",
       mode: "local",
       endpointUrl: null,
       runnerToken: "runner-a",
     });
-    testRunner("0x111");
+    await testRunner("0x111");
 
     await upsertPlayer({
       walletAddress: "0x222",
       trustStatus: "untrusted",
     });
-    registerRunner({
+    await registerRunner({
       walletAddress: "0x222",
       runnerLabel: "Runner B",
       mode: "local",
       endpointUrl: null,
       runnerToken: "runner-b",
     });
-    testRunner("0x222");
+    await testRunner("0x222");
 
-    expect(getRunnerByWallet("0x111")?.status).toBe("healthy");
-    expect(getRunnerByWallet("0x222")?.status).toBe("healthy");
+    expect((await getRunnerByWallet("0x111"))?.status).toBe("healthy");
+    expect((await getRunnerByWallet("0x222"))?.status).toBe("healthy");
 
-    const created = createMatch({
+    const created = await createMatch({
       walletAddress: "0x111",
       stakeAmount: "7",
     });
@@ -90,10 +90,10 @@ describe("lobby flow services", () => {
       return;
     }
 
-    expect(listOpenMatches()).toHaveLength(1);
+    expect(await listOpenMatches()).toHaveLength(1);
     expect(created.match.playerA?.trustStatus).toBe("trusted");
 
-    const joined = joinMatch(created.match.id, "0x222");
+    const joined = await joinMatch(created.match.id, "0x222");
 
     expect("match" in joined).toBe(true);
     if (!("match" in joined)) {
@@ -102,7 +102,7 @@ describe("lobby flow services", () => {
 
     expect(joined.match.status).toBe("live");
     expect(joined.match.playerB?.trustStatus).toBe("untrusted");
-    expect(listOpenMatches()).toHaveLength(0);
+    expect(await listOpenMatches()).toHaveLength(0);
 
     const initialDetail = await getMatchDetail(created.match.id, {
       nowMs: Date.parse("2026-04-04T20:00:00.000Z"),
@@ -116,29 +116,29 @@ describe("lobby flow services", () => {
       trustStatus: "trusted",
       worldNullifierHash: "dev-333",
     });
-    registerRunner({
+    await registerRunner({
       walletAddress: "0x333",
       runnerLabel: "Runner C",
       mode: "local",
       endpointUrl: null,
       runnerToken: "runner-c",
     });
-    testRunner("0x333");
+    await testRunner("0x333");
 
     await upsertPlayer({
       walletAddress: "0x444",
       trustStatus: "untrusted",
     });
-    registerRunner({
+    await registerRunner({
       walletAddress: "0x444",
       runnerLabel: "Runner D",
       mode: "local",
       endpointUrl: null,
       runnerToken: "runner-d",
     });
-    testRunner("0x444");
+    await testRunner("0x444");
 
-    const created = createMatch({
+    const created = await createMatch({
       walletAddress: "0x333",
       stakeAmount: "9",
     });
@@ -147,7 +147,7 @@ describe("lobby flow services", () => {
       throw new Error("Expected match creation to succeed");
     }
 
-    const joined = joinMatch(created.match.id, "0x444");
+    const joined = await joinMatch(created.match.id, "0x444");
 
     if (!("match" in joined)) {
       throw new Error("Expected join to succeed");
@@ -185,29 +185,29 @@ describe("lobby flow services", () => {
       trustStatus: "trusted",
       worldNullifierHash: "dev-999",
     });
-    registerRunner({
+    await registerRunner({
       walletAddress: "0x999",
       runnerLabel: "Runner Nine",
       mode: "local",
       endpointUrl: null,
       runnerToken: "runner-9",
     });
-    testRunner("0x999");
+    await testRunner("0x999");
 
     await upsertPlayer({
       walletAddress: "0xaaa9",
       trustStatus: "untrusted",
     });
-    registerRunner({
+    await registerRunner({
       walletAddress: "0xaaa9",
       runnerLabel: "Runner Ten",
       mode: "local",
       endpointUrl: null,
       runnerToken: "runner-10",
     });
-    testRunner("0xaaa9");
+    await testRunner("0xaaa9");
 
-    const created = createMatch({
+    const created = await createMatch({
       walletAddress: "0x999",
       stakeAmount: "4",
     });
@@ -216,7 +216,7 @@ describe("lobby flow services", () => {
       throw new Error("Expected match creation to succeed");
     }
 
-    const joined = joinMatch(created.match.id, "0xaaa9");
+    const joined = await joinMatch(created.match.id, "0xaaa9");
 
     if (!("match" in joined)) {
       throw new Error("Expected join to succeed");
@@ -239,7 +239,7 @@ describe("lobby flow services", () => {
       return;
     }
 
-    const claimResult = claimMatchPayout(created.match.id, claimant);
+    const claimResult = await claimMatchPayout(created.match.id, claimant);
     expect("ok" in claimResult && claimResult.ok).toBe(true);
 
     const afterClaim = await getMatchDetail(created.match.id, { nowMs: Date.now() + 41_000 });

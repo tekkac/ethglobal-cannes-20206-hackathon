@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { FinalAction, MatchStatus, TrustStatus } from "@agent-duel/shared";
 
-import { getDb } from "@/lib/db/store";
+import { dbAll, dbBatch, dbGet, dbRun } from "@/lib/db/store";
 import { createCommitment, verifyCommitment } from "@/lib/services/commit-reveal";
 import { getPlayerByWallet, getRunnerByWallet } from "@/lib/services/players";
 import {
@@ -168,6 +168,14 @@ const phaseMoments: Array<{
   { phase: "resolved", label: "Resolved", durationMs: Number.POSITIVE_INFINITY, visibleTurns: 9 },
 ];
 
+const MATCH_COLUMNS = `id, stake_amount, status, phase, player_a_wallet, player_b_wallet, player_a_seat,
+  player_b_seat, watcher_count, live_started_at, resolved_at,
+  player_one_commitment, player_two_commitment, player_one_commit_secret,
+  player_two_commit_secret, player_one_committed_action, player_two_committed_action,
+  player_one_final_action, player_two_final_action, commit_verified_at,
+  reveal_verification_error, settlement_status, player_one_payout, player_two_payout,
+  player_one_claimed_at, player_two_claimed_at, resolution_summary`;
+
 function normalizeWalletAddress(walletAddress: string) {
   return walletAddress.trim().toLowerCase();
 }
@@ -176,12 +184,12 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-function buildPlayerCard(walletAddress: string | null) {
+async function buildPlayerCard(walletAddress: string | null): Promise<MatchPlayerCard | null> {
   if (!walletAddress) {
     return null;
   }
 
-  const player = getPlayerByWallet(walletAddress);
+  const player = await getPlayerByWallet(walletAddress);
 
   if (!player) {
     return null;
@@ -204,47 +212,35 @@ function formatPlayerLabel(player: MatchPlayerCard | null, seatLabel: "P1" | "P2
   return player.ensName ?? player.displayName ?? player.walletAddress;
 }
 
-function playerIsLobbyReady(walletAddress: string) {
-  const player = getPlayerByWallet(walletAddress);
-  const runner = getRunnerByWallet(walletAddress);
+async function playerIsLobbyReady(walletAddress: string) {
+  const player = await getPlayerByWallet(walletAddress);
+  const runner = await getRunnerByWallet(walletAddress);
 
   return Boolean(player && runner?.status === "healthy");
 }
 
-function getMatchRow(matchId: string) {
-  const db = getDb();
-
-  return db
-    .prepare(
-      `SELECT id, stake_amount, status, phase, player_a_wallet, player_b_wallet, player_a_seat,
-              player_b_seat, watcher_count, live_started_at, resolved_at,
-              player_one_commitment, player_two_commitment, player_one_commit_secret,
-              player_two_commit_secret, player_one_committed_action, player_two_committed_action,
-              player_one_final_action, player_two_final_action, commit_verified_at,
-              reveal_verification_error, settlement_status, player_one_payout, player_two_payout,
-              player_one_claimed_at, player_two_claimed_at, resolution_summary
-       FROM matches
-       WHERE id = ?`,
-    )
-    .get(matchId) as MatchRow | undefined;
+async function getMatchRow(matchId: string) {
+  return dbGet<MatchRow>(
+    `SELECT ${MATCH_COLUMNS} FROM matches WHERE id = ?`,
+    [matchId],
+  );
 }
 
-function getTranscriptRows(matchId: string) {
-  const db = getDb();
-
-  return db
-    .prepare(
-      `SELECT id, match_id, phase, turn_index, speaker_role, speaker_label, seat_label, body, created_at
-       FROM transcript_entries
-       WHERE match_id = ?
-       ORDER BY turn_index ASC`,
-    )
-    .all(matchId) as TranscriptRow[];
+async function getTranscriptRows(matchId: string) {
+  return dbAll<TranscriptRow>(
+    `SELECT id, match_id, phase, turn_index, speaker_role, speaker_label, seat_label, body, created_at
+     FROM transcript_entries
+     WHERE match_id = ?
+     ORDER BY turn_index ASC`,
+    [matchId],
+  );
 }
 
-function resolveSeatMap(row: MatchRow) {
-  const playerA = buildPlayerCard(row.player_a_wallet);
-  const playerB = buildPlayerCard(row.player_b_wallet);
+async function resolveSeatMap(row: MatchRow) {
+  const [playerA, playerB] = await Promise.all([
+    buildPlayerCard(row.player_a_wallet),
+    buildPlayerCard(row.player_b_wallet),
+  ]);
   const playerOne =
     row.player_a_seat === "P1"
       ? playerA
@@ -375,9 +371,9 @@ function computeSettlement(
 }
 
 async function buildMatchScript(row: MatchRow, existingTranscript?: TranscriptRow[]) {
-  const { playerOne, playerTwo } = resolveSeatMap(row);
-  const playerOneRunner = playerOne ? getRunnerByWallet(playerOne.walletAddress) : null;
-  const playerTwoRunner = playerTwo ? getRunnerByWallet(playerTwo.walletAddress) : null;
+  const { playerOne, playerTwo } = await resolveSeatMap(row);
+  const playerOneRunner = playerOne ? await getRunnerByWallet(playerOne.walletAddress) : null;
+  const playerTwoRunner = playerTwo ? await getRunnerByWallet(playerTwo.walletAddress) : null;
   const p1Label = formatPlayerLabel(playerOne, "P1");
   const p2Label = formatPlayerLabel(playerTwo, "P2");
   const trustP1 = playerOne?.trustStatus ?? "trusted";
@@ -546,8 +542,7 @@ async function buildMatchScript(row: MatchRow, existingTranscript?: TranscriptRo
 }
 
 async function syncMatchProgress(row: MatchRow, nowMs = Date.now()) {
-  const db = getDb();
-  const transcriptRows = getTranscriptRows(row.id);
+  const transcriptRows = await getTranscriptRows(row.id);
   const phaseState = getPhaseState(row, nowMs);
 
   if (phaseState.phase === "awaiting_opponent") {
@@ -683,23 +678,14 @@ async function syncMatchProgress(row: MatchRow, nowMs = Date.now()) {
     shouldCommit ||
     shouldReveal
   ) {
-    const insert = db.prepare(
-      `INSERT INTO transcript_entries (
-        id,
-        match_id,
-        phase,
-        turn_index,
-        speaker_role,
-        speaker_label,
-        seat_label,
-        body,
-        created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    );
+    const statements: Array<{ sql: string; args?: unknown[] }> = [];
 
-    const tx = db.transaction(() => {
-      for (const entry of dueEntries) {
-        insert.run(
+    for (const entry of dueEntries) {
+      statements.push({
+        sql: `INSERT INTO transcript_entries (
+          id, match_id, phase, turn_index, speaker_role, speaker_label, seat_label, body, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
           `entry_${randomUUID().replaceAll("-", "")}`,
           row.id,
           entry.phase,
@@ -709,22 +695,23 @@ async function syncMatchProgress(row: MatchRow, nowMs = Date.now()) {
           entry.seatLabel,
           entry.body,
           nowIso(),
-        );
-      }
+        ],
+      });
+    }
 
-      db.prepare(
-        `UPDATE matches
-         SET phase = ?, status = ?, resolved_at = ?,
-             player_one_commitment = ?, player_two_commitment = ?,
-             player_one_commit_secret = ?, player_two_commit_secret = ?,
-             player_one_committed_action = ?, player_two_committed_action = ?,
-             player_one_final_action = ?, player_two_final_action = ?,
-             commit_verified_at = ?, reveal_verification_error = ?,
-             settlement_status = ?, player_one_payout = ?, player_two_payout = ?,
-             player_one_claimed_at = ?, player_two_claimed_at = ?,
-             resolution_summary = ?, updated_at = ?
-         WHERE id = ?`,
-      ).run(
+    statements.push({
+      sql: `UPDATE matches
+       SET phase = ?, status = ?, resolved_at = ?,
+           player_one_commitment = ?, player_two_commitment = ?,
+           player_one_commit_secret = ?, player_two_commit_secret = ?,
+           player_one_committed_action = ?, player_two_committed_action = ?,
+           player_one_final_action = ?, player_two_final_action = ?,
+           commit_verified_at = ?, reveal_verification_error = ?,
+           settlement_status = ?, player_one_payout = ?, player_two_payout = ?,
+           player_one_claimed_at = ?, player_two_claimed_at = ?,
+           resolution_summary = ?, updated_at = ?
+       WHERE id = ?`,
+      args: [
         revealVerification?.verificationError ? "awaiting_reveals" : phaseState.phase,
         revealVerification?.verificationError ? "cancelled" : phaseState.status,
         phaseState.phase === "resolved" && !revealVerification?.verificationError ? nowIso() : row.resolved_at,
@@ -757,27 +744,27 @@ async function syncMatchProgress(row: MatchRow, nowMs = Date.now()) {
           : row.resolution_summary,
         nowIso(),
         row.id,
-      );
+      ],
     });
 
-    tx();
+    await dbBatch(statements);
   }
 
-  const refreshedRow = getMatchRow(row.id);
+  const refreshedRow = await getMatchRow(row.id);
   return {
     row: refreshedRow ?? row,
-    transcriptRows: getTranscriptRows(row.id),
+    transcriptRows: await getTranscriptRows(row.id),
     phaseState: getPhaseState(refreshedRow ?? row, nowMs),
   };
 }
 
-function mapMatchListItem(row: MatchRow) {
+async function mapMatchListItem(row: MatchRow) {
   return {
     id: row.id,
     stakeAmount: row.stake_amount,
     status: row.status,
-    playerA: buildPlayerCard(row.player_a_wallet),
-    playerB: buildPlayerCard(row.player_b_wallet),
+    playerA: await buildPlayerCard(row.player_a_wallet),
+    playerB: await buildPlayerCard(row.player_b_wallet),
   };
 }
 
@@ -805,43 +792,26 @@ function determineWinningSeat(row: MatchRow) {
   return null;
 }
 
-export function listOpenMatches() {
-  const db = getDb();
-  const rows = db
-    .prepare(
-      `SELECT id, stake_amount, status, phase, player_a_wallet, player_b_wallet, player_a_seat,
-              player_b_seat, watcher_count, live_started_at, resolved_at,
-              player_one_commitment, player_two_commitment, player_one_commit_secret,
-              player_two_commit_secret, player_one_committed_action, player_two_committed_action,
-              player_one_final_action, player_two_final_action, commit_verified_at,
-              reveal_verification_error, settlement_status, player_one_payout, player_two_payout,
-              player_one_claimed_at, player_two_claimed_at, resolution_summary
-       FROM matches
-       WHERE player_b_wallet IS NULL
-       ORDER BY created_at DESC`,
-    )
-    .all() as MatchRow[];
+export async function listOpenMatches() {
+  const rows = await dbAll<MatchRow>(
+    `SELECT ${MATCH_COLUMNS}
+     FROM matches
+     WHERE player_b_wallet IS NULL
+     ORDER BY created_at DESC`,
+  );
 
-  return rows.map(mapMatchListItem);
+  return Promise.all(rows.map(mapMatchListItem));
 }
 
 export async function listRecentMatches(limit = 6, options?: { nowMs?: number }) {
-  const db = getDb();
-  const rows = db
-    .prepare(
-      `SELECT id, stake_amount, status, phase, player_a_wallet, player_b_wallet, player_a_seat,
-              player_b_seat, watcher_count, live_started_at, resolved_at,
-              player_one_commitment, player_two_commitment, player_one_commit_secret,
-              player_two_commit_secret, player_one_committed_action, player_two_committed_action,
-              player_one_final_action, player_two_final_action, commit_verified_at,
-              reveal_verification_error, settlement_status, player_one_payout, player_two_payout,
-              player_one_claimed_at, player_two_claimed_at, resolution_summary
-       FROM matches
-       WHERE player_b_wallet IS NOT NULL
-       ORDER BY COALESCE(resolved_at, live_started_at, updated_at) DESC
-       LIMIT ?`,
-    )
-    .all(Math.max(limit * 2, limit)) as MatchRow[];
+  const rows = await dbAll<MatchRow>(
+    `SELECT ${MATCH_COLUMNS}
+     FROM matches
+     WHERE player_b_wallet IS NOT NULL
+     ORDER BY COALESCE(resolved_at, live_started_at, updated_at) DESC
+     LIMIT ?`,
+    [Math.max(limit * 2, limit)],
+  );
 
   const recent: RecentMatchListItem[] = [];
 
@@ -849,7 +819,7 @@ export async function listRecentMatches(limit = 6, options?: { nowMs?: number })
     // Skip sync for already-resolved matches — no need to call runners again
     const alreadyResolved = row.status === "resolved" || row.status === "cancelled";
     const synced = alreadyResolved
-      ? { row, transcriptRows: getTranscriptRows(row.id), phaseState: getPhaseState(row, options?.nowMs) }
+      ? { row, transcriptRows: await getTranscriptRows(row.id), phaseState: getPhaseState(row, options?.nowMs) }
       : await syncMatchProgress(row, options?.nowMs);
 
     if (
@@ -861,7 +831,7 @@ export async function listRecentMatches(limit = 6, options?: { nowMs?: number })
       continue;
     }
 
-    const { playerOne, playerTwo } = resolveSeatMap(synced.row);
+    const { playerOne, playerTwo } = await resolveSeatMap(synced.row);
     recent.push({
       id: synced.row.id,
       stakeAmount: synced.row.stake_amount,
@@ -889,11 +859,10 @@ export async function listRecentMatches(limit = 6, options?: { nowMs?: number })
   return recent;
 }
 
-export function createMatch(input: CreateMatchInput) {
-  const db = getDb();
+export async function createMatch(input: CreateMatchInput) {
   const walletAddress = normalizeWalletAddress(input.walletAddress);
 
-  if (!playerIsLobbyReady(walletAddress)) {
+  if (!(await playerIsLobbyReady(walletAddress))) {
     return {
       error: "Player must choose trust mode and register a healthy runner before entering the lobby.",
     };
@@ -903,148 +872,7 @@ export function createMatch(input: CreateMatchInput) {
   const timestamp = nowIso();
   const watcherCount = 80 + (id.charCodeAt(id.length - 1) % 170);
 
-  db.prepare(
-    `INSERT INTO matches (
-      id,
-      stake_amount,
-      status,
-      phase,
-      player_a_wallet,
-      player_b_wallet,
-      player_a_seat,
-      player_b_seat,
-      watcher_count,
-      live_started_at,
-      resolved_at,
-      player_one_commitment,
-      player_two_commitment,
-      player_one_commit_secret,
-      player_two_commit_secret,
-      player_one_committed_action,
-      player_two_committed_action,
-      player_one_final_action,
-      player_two_final_action,
-      commit_verified_at,
-      reveal_verification_error,
-      settlement_status,
-      player_one_payout,
-      player_two_payout,
-      player_one_claimed_at,
-      player_two_claimed_at,
-      resolution_summary,
-      created_at,
-      updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    id,
-    input.stakeAmount.trim(),
-    "awaiting_deposits",
-    "draft",
-    walletAddress,
-    null,
-    null,
-    null,
-    watcherCount,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    "pending",
-    null,
-    null,
-    null,
-    null,
-    null,
-    timestamp,
-    timestamp,
-  );
-
-  const row = getMatchRow(id);
-
-  if (!row) {
-    return { error: "Failed to create match." };
-  }
-
-  return { match: mapMatchListItem(row) };
-}
-
-export function joinMatch(matchId: string, walletAddress: string) {
-  const db = getDb();
-  const normalizedWallet = normalizeWalletAddress(walletAddress);
-  const existing = getMatchRow(matchId);
-
-  if (!existing) {
-    return { error: "Match not found." };
-  }
-
-  if (existing.player_b_wallet) {
-    return { error: "Match already has two players." };
-  }
-
-  if (existing.player_a_wallet === normalizedWallet) {
-    return { error: "Player cannot join their own match." };
-  }
-
-  if (!playerIsLobbyReady(normalizedWallet)) {
-    return {
-      error: "Joining player must choose trust mode and register a healthy runner before entering the lobby.",
-    };
-  }
-
-  const playerASeat =
-    parseInt(matchId.replace(/\D/g, "").slice(-1) || "0", 10) % 2 === 0 ? "P1" : "P2";
-  const playerBSeat = playerASeat === "P1" ? "P2" : "P1";
-  const timestamp = nowIso();
-
-  db.prepare(
-    `UPDATE matches
-     SET player_b_wallet = ?, player_a_seat = ?, player_b_seat = ?, status = ?, phase = ?, live_started_at = ?, updated_at = ?
-     WHERE id = ?`,
-  ).run(
-    normalizedWallet,
-    playerASeat,
-    playerBSeat,
-    "live",
-    "waiting_to_start",
-    timestamp,
-    timestamp,
-    matchId,
-  );
-
-  const row = getMatchRow(matchId);
-
-  if (!row) {
-    return { error: "Failed to join match." };
-  }
-
-  return { match: mapMatchListItem(row) };
-}
-
-export function createSelfPlayMatch(input: CreateMatchInput) {
-  const db = getDb();
-  const walletAddress = normalizeWalletAddress(input.walletAddress);
-
-  if (!playerIsLobbyReady(walletAddress)) {
-    return {
-      error: "Player must choose trust mode and register a healthy runner before entering the lobby.",
-    };
-  }
-
-  const id = `match_${randomUUID().replaceAll("-", "")}`;
-  const timestamp = nowIso();
-  const watcherCount = 80 + (id.charCodeAt(id.length - 1) % 170);
-  const playerASeat = parseInt(id.replace(/\D/g, "").slice(-1) || "0", 10) % 2 === 0 ? "P1" : "P2";
-  const playerBSeat = playerASeat === "P1" ? "P2" : "P1";
-
-  db.prepare(
+  await dbRun(
     `INSERT INTO matches (
       id, stake_amount, status, phase,
       player_a_wallet, player_b_wallet,
@@ -1059,30 +887,132 @@ export function createSelfPlayMatch(input: CreateMatchInput) {
       player_one_claimed_at, player_two_claimed_at,
       resolution_summary, created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    id,
-    input.stakeAmount.trim(),
-    "live",
-    "waiting_to_start",
-    walletAddress,
-    walletAddress,
-    playerASeat,
-    playerBSeat,
-    watcherCount,
-    timestamp,
-    null, null, null, null, null, null, null, null, null, null, null,
-    "pending", null, null, null, null, null,
-    timestamp, timestamp,
+    [
+      id,
+      input.stakeAmount.trim(),
+      "awaiting_deposits",
+      "draft",
+      walletAddress,
+      null, null, null,
+      watcherCount,
+      null, null, null, null, null, null, null, null, null, null, null, null,
+      "pending", null, null, null, null, null,
+      timestamp, timestamp,
+    ],
   );
 
-  const row = getMatchRow(id);
-  if (!row) return { error: "Failed to create self-play match." };
-  return { match: mapMatchListItem(row) };
+  const row = await getMatchRow(id);
+
+  if (!row) {
+    return { error: "Failed to create match." };
+  }
+
+  return { match: await mapMatchListItem(row) };
 }
 
-export function claimMatchPayout(matchId: string, walletAddress: string) {
-  const db = getDb();
-  const row = getMatchRow(matchId);
+export async function joinMatch(matchId: string, walletAddress: string) {
+  const normalizedWallet = normalizeWalletAddress(walletAddress);
+  const existing = await getMatchRow(matchId);
+
+  if (!existing) {
+    return { error: "Match not found." };
+  }
+
+  if (existing.player_b_wallet) {
+    return { error: "Match already has two players." };
+  }
+
+  if (existing.player_a_wallet === normalizedWallet) {
+    return { error: "Player cannot join their own match." };
+  }
+
+  if (!(await playerIsLobbyReady(normalizedWallet))) {
+    return {
+      error: "Joining player must choose trust mode and register a healthy runner before entering the lobby.",
+    };
+  }
+
+  const playerASeat =
+    parseInt(matchId.replace(/\D/g, "").slice(-1) || "0", 10) % 2 === 0 ? "P1" : "P2";
+  const playerBSeat = playerASeat === "P1" ? "P2" : "P1";
+  const timestamp = nowIso();
+
+  await dbRun(
+    `UPDATE matches
+     SET player_b_wallet = ?, player_a_seat = ?, player_b_seat = ?, status = ?, phase = ?, live_started_at = ?, updated_at = ?
+     WHERE id = ?`,
+    [
+      normalizedWallet,
+      playerASeat,
+      playerBSeat,
+      "live",
+      "waiting_to_start",
+      timestamp,
+      timestamp,
+      matchId,
+    ],
+  );
+
+  const row = await getMatchRow(matchId);
+
+  if (!row) {
+    return { error: "Failed to join match." };
+  }
+
+  return { match: await mapMatchListItem(row) };
+}
+
+export async function createSelfPlayMatch(input: CreateMatchInput) {
+  const walletAddress = normalizeWalletAddress(input.walletAddress);
+
+  if (!(await playerIsLobbyReady(walletAddress))) {
+    return {
+      error: "Player must choose trust mode and register a healthy runner before entering the lobby.",
+    };
+  }
+
+  const id = `match_${randomUUID().replaceAll("-", "")}`;
+  const timestamp = nowIso();
+  const watcherCount = 80 + (id.charCodeAt(id.length - 1) % 170);
+  const playerASeat = parseInt(id.replace(/\D/g, "").slice(-1) || "0", 10) % 2 === 0 ? "P1" : "P2";
+  const playerBSeat = playerASeat === "P1" ? "P2" : "P1";
+
+  await dbRun(
+    `INSERT INTO matches (
+      id, stake_amount, status, phase,
+      player_a_wallet, player_b_wallet,
+      player_a_seat, player_b_seat,
+      watcher_count, live_started_at, resolved_at,
+      player_one_commitment, player_two_commitment,
+      player_one_commit_secret, player_two_commit_secret,
+      player_one_committed_action, player_two_committed_action,
+      player_one_final_action, player_two_final_action,
+      commit_verified_at, reveal_verification_error,
+      settlement_status, player_one_payout, player_two_payout,
+      player_one_claimed_at, player_two_claimed_at,
+      resolution_summary, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      id,
+      input.stakeAmount.trim(),
+      "live",
+      "waiting_to_start",
+      walletAddress, walletAddress,
+      playerASeat, playerBSeat,
+      watcherCount, timestamp,
+      null, null, null, null, null, null, null, null, null, null, null,
+      "pending", null, null, null, null, null,
+      timestamp, timestamp,
+    ],
+  );
+
+  const row = await getMatchRow(id);
+  if (!row) return { error: "Failed to create self-play match." };
+  return { match: await mapMatchListItem(row) };
+}
+
+export async function claimMatchPayout(matchId: string, walletAddress: string) {
+  const row = await getMatchRow(matchId);
 
   if (!row) {
     return { error: "Match not found." };
@@ -1122,11 +1052,12 @@ export function claimMatchPayout(matchId: string, walletAddress: string) {
   const playerTwoOutstanding = Number.parseFloat(row.player_two_payout ?? "0") > 0 && !nextPlayerTwoClaimedAt;
   const settlementStatus = playerOneOutstanding || playerTwoOutstanding ? "claimable" : "settled";
 
-  db.prepare(
+  await dbRun(
     `UPDATE matches
      SET player_one_claimed_at = ?, player_two_claimed_at = ?, settlement_status = ?, updated_at = ?
      WHERE id = ?`,
-  ).run(nextPlayerOneClaimedAt, nextPlayerTwoClaimedAt, settlementStatus, timestamp, matchId);
+    [nextPlayerOneClaimedAt, nextPlayerTwoClaimedAt, settlementStatus, timestamp, matchId],
+  );
 
   return {
     ok: true,
@@ -1137,14 +1068,14 @@ export function claimMatchPayout(matchId: string, walletAddress: string) {
 }
 
 export async function getMatchDetail(matchId: string, options?: { nowMs?: number }): Promise<MatchSnapshot | null> {
-  const row = getMatchRow(matchId);
+  const row = await getMatchRow(matchId);
 
   if (!row) {
     return null;
   }
 
   const synced = await syncMatchProgress(row, options?.nowMs);
-  const { playerA, playerB, playerOne, playerTwo } = resolveSeatMap(synced.row);
+  const { playerA, playerB, playerOne, playerTwo } = await resolveSeatMap(synced.row);
 
   return {
     id: synced.row.id,

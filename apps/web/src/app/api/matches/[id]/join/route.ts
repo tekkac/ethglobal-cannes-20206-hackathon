@@ -21,7 +21,7 @@ export async function POST(
   }
 
   const { id } = await context.params;
-  const result = joinMatch(id, parsed.data.walletAddress);
+  const result = await joinMatch(id, parsed.data.walletAddress);
 
   if ("error" in result && result.error) {
     return badRequest(result.error);

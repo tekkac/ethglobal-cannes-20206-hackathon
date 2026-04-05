@@ -12,8 +12,6 @@
     "db:migrate": "pnpm --filter web db:migrate"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3"
-    ]
+    "onlyBuiltDependencies": []
   }
 }

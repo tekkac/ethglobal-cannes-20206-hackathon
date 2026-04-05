@@ -12,7 +12,7 @@ const createMatchSchema = z.object({
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    matches: listOpenMatches(),
+    matches: await listOpenMatches(),
     recentMatches: await listRecentMatches(),
   });
 }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     return badRequest("Invalid create match payload", parsed.error.flatten());
   }
 
-  const result = createMatch(parsed.data);
+  const result = await createMatch(parsed.data);
 
   if ("error" in result && result.error) {
     return badRequest(result.error);

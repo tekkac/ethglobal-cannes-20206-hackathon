@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, context: { params: Params }) {
   }
 
   const { id } = await context.params;
-  const result = claimMatchPayout(id, parsed.data.walletAddress);
+  const result = await claimMatchPayout(id, parsed.data.walletAddress);
 
   if ("error" in result && result.error) {
     return badRequest(result.error);

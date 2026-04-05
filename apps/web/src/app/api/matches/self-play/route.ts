@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     return badRequest("Invalid self-play payload", parsed.error.flatten());
   }
 
-  const result = createSelfPlayMatch(parsed.data);
+  const result = await createSelfPlayMatch(parsed.data);
 
   if ("error" in result && result.error) {
     return badRequest(result.error);

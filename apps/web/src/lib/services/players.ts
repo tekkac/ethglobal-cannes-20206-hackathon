@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { RunnerStatus, TrustStatus } from "@agent-duel/shared";
 
-import { getDb } from "@/lib/db/store";
+import { dbGet, dbRun } from "@/lib/db/store";
 import { resolveEnsProfile } from "@/lib/services/ens";
 
 type PlayerRow = {
@@ -76,28 +76,24 @@ function mapRunner(row: RunnerRow | undefined | null) {
   };
 }
 
-export function getPlayerByWallet(walletAddress: string) {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT wallet_address, trust_status, display_name, ens_name, ens_avatar, world_nullifier_hash
-       FROM players
-       WHERE wallet_address = ?`,
-    )
-    .get(normalizeWalletAddress(walletAddress)) as PlayerRow | undefined;
+export async function getPlayerByWallet(walletAddress: string) {
+  const row = await dbGet<PlayerRow>(
+    `SELECT wallet_address, trust_status, display_name, ens_name, ens_avatar, world_nullifier_hash
+     FROM players
+     WHERE wallet_address = ?`,
+    [normalizeWalletAddress(walletAddress)],
+  );
 
   return mapPlayer(row);
 }
 
-export function getRunnerByWallet(walletAddress: string) {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT wallet_address, runner_label, mode, endpoint_url, runner_token, status, last_seen_at
-       FROM runners
-       WHERE wallet_address = ?`,
-    )
-    .get(normalizeWalletAddress(walletAddress)) as RunnerRow | undefined;
+export async function getRunnerByWallet(walletAddress: string) {
+  const row = await dbGet<RunnerRow>(
+    `SELECT wallet_address, runner_label, mode, endpoint_url, runner_token, status, last_seen_at
+     FROM runners
+     WHERE wallet_address = ?`,
+    [normalizeWalletAddress(walletAddress)],
+  );
 
   return mapRunner(row);
 }
@@ -107,15 +103,14 @@ export function createRunnerToken() {
 }
 
 export async function upsertPlayer(input: UpsertPlayerInput) {
-  const db = getDb();
   const walletAddress = normalizeWalletAddress(input.walletAddress);
-  const existing = getPlayerByWallet(walletAddress);
+  const existing = await getPlayerByWallet(walletAddress);
   const timestamp = nowIso();
   const ensProfile = await resolveEnsProfile(walletAddress);
   const displayName =
     existing?.displayName ?? (ensProfile.name ? ensProfile.name.replace(/\.eth$/, "") : null);
 
-  db.prepare(
+  await dbRun(
     `INSERT INTO players (
       wallet_address,
       trust_status,
@@ -133,33 +128,33 @@ export async function upsertPlayer(input: UpsertPlayerInput) {
       ens_avatar = excluded.ens_avatar,
       world_nullifier_hash = excluded.world_nullifier_hash,
       updated_at = excluded.updated_at`,
-  ).run(
-    walletAddress,
-    input.trustStatus,
-    displayName,
-    ensProfile.name,
-    ensProfile.avatar,
-    input.worldNullifierHash ?? null,
-    timestamp,
-    timestamp,
+    [
+      walletAddress,
+      input.trustStatus,
+      displayName,
+      ensProfile.name,
+      ensProfile.avatar,
+      input.worldNullifierHash ?? null,
+      timestamp,
+      timestamp,
+    ],
   );
 
   return getPlayerByWallet(walletAddress);
 }
 
-export function registerRunner(input: RegisterRunnerInput) {
-  const db = getDb();
+export async function registerRunner(input: RegisterRunnerInput) {
   const walletAddress = normalizeWalletAddress(input.walletAddress);
 
-  if (!getPlayerByWallet(walletAddress)) {
+  if (!(await getPlayerByWallet(walletAddress))) {
     return null;
   }
 
-  const existing = getRunnerByWallet(walletAddress);
+  const existing = await getRunnerByWallet(walletAddress);
   const timestamp = nowIso();
   const runnerToken = input.runnerToken?.trim() || existing?.runnerToken || createRunnerToken();
 
-  db.prepare(
+  await dbRun(
     `INSERT INTO runners (
       wallet_address,
       runner_label,
@@ -179,25 +174,25 @@ export function registerRunner(input: RegisterRunnerInput) {
       status = excluded.status,
       last_seen_at = excluded.last_seen_at,
       updated_at = excluded.updated_at`,
-  ).run(
-    walletAddress,
-    input.runnerLabel.trim(),
-    input.mode,
-    input.endpointUrl,
-    runnerToken,
-    "issued",
-    existing?.lastSeenAt ?? null,
-    timestamp,
-    timestamp,
+    [
+      walletAddress,
+      input.runnerLabel.trim(),
+      input.mode,
+      input.endpointUrl,
+      runnerToken,
+      "issued",
+      existing?.lastSeenAt ?? null,
+      timestamp,
+      timestamp,
+    ],
   );
 
   return getRunnerByWallet(walletAddress);
 }
 
-export function testRunner(walletAddress: string) {
-  const db = getDb();
+export async function testRunner(walletAddress: string) {
   const normalizedWallet = normalizeWalletAddress(walletAddress);
-  const existing = getRunnerByWallet(normalizedWallet);
+  const existing = await getRunnerByWallet(normalizedWallet);
 
   if (!existing) {
     return null;
@@ -205,12 +200,12 @@ export function testRunner(walletAddress: string) {
 
   const timestamp = nowIso();
 
-  db.prepare(
+  await dbRun(
     `UPDATE runners
      SET status = ?, last_seen_at = ?, updated_at = ?
      WHERE wallet_address = ?`,
-  ).run("healthy", timestamp, timestamp, normalizedWallet);
+    ["healthy", timestamp, timestamp, normalizedWallet],
+  );
 
   return getRunnerByWallet(normalizedWallet);
 }
-

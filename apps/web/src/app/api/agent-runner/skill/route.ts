@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const runner = getRunnerByWallet(walletAddress);
+  const runner = await getRunnerByWallet(walletAddress);
 
   return new NextResponse(
     generateSkillFile({

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return badRequest("walletAddress is required");
   }
 
-  const player = getPlayerByWallet(walletAddress);
+  const player = await getPlayerByWallet(walletAddress);
 
   if (!player) {
     return NextResponse.json({
@@ -23,6 +23,6 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     player,
-    runner: getRunnerByWallet(walletAddress)
+    runner: await getRunnerByWallet(walletAddress)
   });
 }

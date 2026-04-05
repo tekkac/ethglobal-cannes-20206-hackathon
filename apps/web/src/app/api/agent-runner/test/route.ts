@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     return badRequest("Invalid runner test payload", parsed.error.flatten());
   }
 
-  const existing = getRunnerByWallet(parsed.data.walletAddress);
+  const existing = await getRunnerByWallet(parsed.data.walletAddress);
 
   if (!existing) {
     return badRequest("Runner must exist before testing");
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Mark healthy only after real successful ping
-  const runner = testRunner(parsed.data.walletAddress);
+  const runner = await testRunner(parsed.data.walletAddress);
 
   return NextResponse.json({
     ok: true,

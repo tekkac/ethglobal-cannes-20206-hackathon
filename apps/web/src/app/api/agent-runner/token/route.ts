@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     return badRequest("Invalid runner token request", parsed.error.flatten());
   }
 
-  const player = getPlayerByWallet(parsed.data.walletAddress);
+  const player = await getPlayerByWallet(parsed.data.walletAddress);
 
   if (!player) {
     return badRequest("Player must exist before issuing a runner token");
